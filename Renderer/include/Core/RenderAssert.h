@@ -6,33 +6,24 @@
 
 
 
+
+
+
+struct RenderAsssert {
+	template <class T>
+	static inline void Test(T param, const std::string& message = "") {
 #if RENDERER_DEBUG
-
-
-	struct RenderAsssert {
-		template <class T>
-		static inline void Test(T param, const std::string& message = "") {
-			static_assert(std::is_arithmetic<T>::value);
-			const bool value = static_cast<bool>(param); 
-			if (!param)
+		static_assert(std::is_arithmetic<T>::value);
+		const bool value = static_cast<bool>(param);
+		if (!param)
+		{
+			if (!message.empty())
 			{
-				if (!message.empty())
-				{
-					std::cerr << "Render Abort\t" << message << std::endl;
-				}
-				abort(); 
+				std::cerr << "Render Abort\t" << message << std::endl;
 			}
+			abort();
 		}
-
-	};
-
-
-
-
-	
-	
-
-#elif 
-#define RenderAsssert(expression) (void(0))
-
 #endif
+	}
+
+};
