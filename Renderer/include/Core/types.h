@@ -19,16 +19,22 @@ typedef int32 BitMask;
 template<int n>
 struct Bit { enum { value = (1 << n) }; };
 
-constexpr int Bit_(int n) { return 1 << n; }
+constexpr int32 Bit_(int n) { return 1 << n; }
 
 template <class ... Bits>
 constexpr BitMask BuildBitMask(Bits&& ... bits) {
-	return (... | static_cast<BitMask>(bits));
+	return (... | Bit_(bits));
 }
 
 template <class ... Bits>
-constexpr bool BitComparisson(int number, Bits&& ... bits)
+constexpr bool BitComparisson(int32 number, Bits&& ... bits)
 {
 	const BitMask b = BuildBitMask(std::forward<Bits>(bits)...);
-	return (number & b) == b;
+	const auto n = (number & b);
+	return n == number;
+}
+
+constexpr bool MaskComparisson(int32 number, BitMask mask)
+{
+	return number == mask;
 }

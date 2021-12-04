@@ -42,6 +42,11 @@ project "Renderer"
 		libdirs {"thirdparty/libs/"}
 		links {"glfw3"}
 		
+		postbuildcommands {
+			"{copy} ../../bin/output/%{cfg.buildcfg}/%{prj.name}.lib  ../../bin/output/%{cfg.buildcfg}/Test/",
+			"{echo} Renderer Lib copied"
+		}
+		
 project "Application"
 
 		kind "ConsoleApp"
@@ -57,26 +62,32 @@ project "Application"
 				"%{prj.name}/include/**.h", "%{prj.name}/include/**.hpp"}
 				
 		includedirs{".%{prj.name}/include" , "%{prj.name}./src", "./Renderer/include", "./thirdparty/include","./thirdparty/glm/glm"}
-		libdirs {""}
 		links {"Renderer"}
 		
 		
+
+project "GTest"
+		kind "StaticLib"
+		
+		targetdir ("bin/output/" .. "%{cfg.buildcfg}" .. "/Test")
+		objdir ("bin/int/" .. "%{cfg.buildcfg}")
+		
+		files { "googletest/googletest/src/gtest-all.cc" }
+		includedirs { "googletest/googletest/include", "googletest/googletest" }
+
 project "Application_gtest"
 
 		kind "ConsoleApp"
 		language "C++"
 		cppdialect "C++17"
 		location "build/%{prj.name}"
-		nuget {
-			"Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn:1.8.1.5"
-		}
 		
-		targetdir ("bin/output/" .. "%{cfg.buildcfg}")
+		targetdir ("bin/output/" .. "%{cfg.buildcfg}" .. "/Test")
 		objdir ("bin/int/" .. "%{cfg.buildcfg}")
 		
 		files {"%{prj.name}/src/**.cpp","%{prj.name}/src/**.h", "%{prj.name}/src/**.hpp",
 				"%{prj.name}/include/**.h", "%{prj.name}/include/**.hpp"}
 				
-		includedirs{".%{prj.name}/include" , "%{prj.name}./src", "./Renderer/include", "./thirdparty/include","./thirdparty/glm/glm"}
-		libdirs {""}
-		links {"Renderer"}
+		includedirs{".%{prj.name}/include" , "%{prj.name}./src", "./Renderer/include", "./thirdparty/include","./thirdparty/glm/glm", "googletest/googletest/include"}
+		links {"Renderer" ,"GTest"}
+		
