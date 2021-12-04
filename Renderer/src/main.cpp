@@ -4,6 +4,8 @@
 #include <iostream>
 #include <functional>
 #include "Window/Window.h"
+#include "Core/Renderer.h"
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -14,16 +16,10 @@ const unsigned int SCR_HEIGHT = 600;
 
 int main()
 {
-
 	// 
 	// glfw: initialize and configure
 	// ------------------------------
 	Renderer::GLFW::GLFWContext context;
-
-	{
-		Renderer::Window::GLFWwindowPointer p;
-	}
-
 	// glfw window creation
 	// --------------------
 	auto window = context.CreateNewWindow(SCR_HEIGHT, SCR_HEIGHT, "Renderer");

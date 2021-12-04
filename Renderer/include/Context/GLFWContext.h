@@ -1,4 +1,5 @@
 #pragma once 
+#include "glad/glad.h"
 #include "Core/types.h"
 #include "Core/Handlers.h"
 #include "Window/Window.h"

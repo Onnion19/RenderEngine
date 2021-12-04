@@ -4,6 +4,7 @@ workspace "Renderer"
 	system "Windows"
 	architecture "x64"
 	
+	startproject "Application"
 	
 	filter {"configurations:Debug_all"}
 		defines {	"RENDERER_DEBUG", "RENDERER_DEBUG_ALL"}
@@ -24,6 +25,25 @@ workspace "Renderer"
 		runtime "Release"
 		
 project "Renderer"
+		kind "StaticLib"
+		language "C++"
+		cppdialect "C++17"
+		location "build/%{prj.name}"
+		
+		
+		targetdir ("bin/output/" .. "%{cfg.buildcfg}")
+		objdir ("bin/int/" .. "%{cfg.buildcfg}")
+		
+		files {"%{prj.name}/src/**.cpp","%{prj.name}/src/**.h", "%{prj.name}/src/**.hpp",
+				"%{prj.name}/include/**.h", "%{prj.name}/include/**.hpp",
+				"thirdparty/src/**.c" ,"thirdparty/src/**.cpp" }
+				
+		includedirs{"%{prj.name}./include" , "%{prj.name}./src" , "./thirdparty/include" , "./thirdparty/glm/glm"}
+		libdirs {"thirdparty/libs/"}
+		links {"glfw3"}
+		
+project "Application"
+
 		kind "ConsoleApp"
 		language "C++"
 		cppdialect "C++17"
@@ -33,10 +53,30 @@ project "Renderer"
 		targetdir ("bin/output/" .. "%{cfg.buildcfg}")
 		objdir ("bin/int/" .. "%{cfg.buildcfg}")
 		
-		files {"src/**.cpp","src/**.h", "src/**.hpp",
-				"include/**.h", "include/**.hpp",
-				"thirdparty/src/**.c" ,"thirdparty/src/**.cpp" }
+		files {"%{prj.name}/src/**.cpp","%{prj.name}/src/**.h", "%{prj.name}/src/**.hpp",
+				"%{prj.name}/include/**.h", "%{prj.name}/include/**.hpp"}
 				
-		includedirs{"./include" , "./src" , "./thirdparty/include" , "./thirdparty/glm/glm"}
-		libdirs {"thirdparty/libs/"}
-		links {"glfw3"}
+		includedirs{".%{prj.name}/include" , "%{prj.name}./src", "./Renderer/include", "./thirdparty/include","./thirdparty/glm/glm"}
+		libdirs {""}
+		links {"Renderer"}
+		
+		
+project "Application_gtest"
+
+		kind "ConsoleApp"
+		language "C++"
+		cppdialect "C++17"
+		location "build/%{prj.name}"
+		nuget {
+			"Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn:1.8.1.5"
+		}
+		
+		targetdir ("bin/output/" .. "%{cfg.buildcfg}")
+		objdir ("bin/int/" .. "%{cfg.buildcfg}")
+		
+		files {"%{prj.name}/src/**.cpp","%{prj.name}/src/**.h", "%{prj.name}/src/**.hpp",
+				"%{prj.name}/include/**.h", "%{prj.name}/include/**.hpp"}
+				
+		includedirs{".%{prj.name}/include" , "%{prj.name}./src", "./Renderer/include", "./thirdparty/include","./thirdparty/glm/glm"}
+		libdirs {""}
+		links {"Renderer"}
