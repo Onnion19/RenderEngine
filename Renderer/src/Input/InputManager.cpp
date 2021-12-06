@@ -23,39 +23,65 @@ namespace Renderer::Input {
 
 	Renderer::Core::TokenOwner InputManager::RegisterEvent(Callback::type&& function, KeyboardCode kc, ButtonStatus bs)
 	{
+		return RegisterEvent(std::move(function), static_cast<BitMask>(kc), bs);
+	}
+
+	Renderer::Core::TokenOwner InputManager::RegisterEvent(Callback::type&& function, BitMask mask, ButtonStatus bs)
+	{
 		Renderer::Core::TokenOwner token;
 		if (bs == ButtonStatus::DOWN)
 		{
-			mCallbacks[kc].onDownCallbacks.emplace_back(function, token);
+			mCallbacks[mask].onDownCallbacks.emplace_back(function, token);
 		}
 		else if (bs == ButtonStatus::UP)
 		{
-			mCallbacks[kc].onUpCallbacks.emplace_back(function, token);
+			mCallbacks[mask].onUpCallbacks.emplace_back(function, token);
 		}
 		return token;
 	}
 
 	void InputManager::RegisterEvent(const Token& token, Callback::type&& function, KeyboardCode kc, ButtonStatus bs)
 	{
-		mCallbacks[kc].onDownCallbacks.emplace_back(function, token);
+		RegisterEvent(token, std::move(function), static_cast<BitMask>(kc), bs);
+	}
+
+	void InputManager::RegisterEvent(const Token& token, Callback::type&& function, BitMask mask, ButtonStatus bs)
+	{
+		if (bs == ButtonStatus::DOWN)
+		{
+			mCallbacks[mask].onDownCallbacks.emplace_back(function, token);
+		}
+		else
+		{
+			mCallbacks[mask].onUpCallbacks.emplace_back(function, token);
+		}
 	}
 
 	void InputManager::UnregisterEvent(KeyboardCode kc, ButtonStatus bs, const Token& token)
 	{
+		UnregisterEvent(static_cast<BitMask>(kc), bs, token);
+	}
+
+	void InputManager::UnregisterEvent(BitMask mask, ButtonStatus bs, const Token& token)
+	{
 		if (bs == ButtonStatus::DOWN)
 		{
-			Internal::UnregisterEvent(mCallbacks[kc].onDownCallbacks, token);
+			Internal::UnregisterEvent(mCallbacks[mask].onDownCallbacks, token);
 		}
 		else if (bs == ButtonStatus::UP)
 		{
-			Internal::UnregisterEvent(mCallbacks[kc].onUpCallbacks, token);
+			Internal::UnregisterEvent(mCallbacks[mask].onUpCallbacks, token);
 		}
 	}
 
+
 	void InputManager::ProcessEvent(const KeyInfo& key)
 	{
-
-		auto& buffer = (key.status == ButtonStatus::DOWN) ? mCallbacks[key.code].onDownCallbacks : mCallbacks[key.code].onUpCallbacks;
+		BitMask mask = static_cast<BitMask>(key.code);
+		if (key.modifier != KeyboardCode::None) {
+			mask |= static_cast<BitMask>(key.modifier);
+		}
+		auto& buffer = (key.status == ButtonStatus::DOWN) ? mCallbacks[mask].onDownCallbacks : mCallbacks[mask].onUpCallbacks;
 
 		for (auto& callback : buffer)
 		{
@@ -63,5 +89,8 @@ namespace Renderer::Input {
 		}
 
 		Internal::UnregisterAllDangling(buffer);
+
 	}
+
+
 }

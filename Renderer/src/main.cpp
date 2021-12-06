@@ -28,7 +28,7 @@ int main()
 		std::cout << "Failed to create GLFW window" << std::endl;
 		return -1;
 	}
-	glfwSetFramebufferSizeCallback(window.get(), [](GLFWwindow* window, int width, int height) {glViewport(0, 0, width, height); });
+	glfwSetFramebufferSizeCallback(window.get(), []([[maybe_unused]] GLFWwindow* window, int width, int height) {glViewport(0, 0, width, height); });
 
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
@@ -68,7 +68,7 @@ void processInput(GLFWwindow* window)
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void framebuffer_size_callback([[maybe_unused]]GLFWwindow* window, int width, int height)
 {
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.

@@ -5,7 +5,7 @@
 
 namespace Renderer::Input {
 
-	enum class KeyboardCode : int32
+	enum class KeyboardCode : BitMask
 	{
 		None = Bit<0>::value,
 		A = Bit<1>::value,
@@ -39,6 +39,17 @@ namespace Renderer::Input {
 		Cntrl = Bit<29>::value,
 	};
 
+	template<class ... KeyboardCodes>
+	BitMask BuildBitMaskFromKeyboardCode(KeyboardCodes && ...kc)
+	{
+		return (... | static_cast<BitMask>(kc));
+	}
+
+	template <class T>
+	KeyboardCode GetKeyFromLiteral(T t)
+	{
+		return static_cast<KeyboardCode>(t);
+	}
 
 	enum class ButtonStatus {
 		UP = 0, DOWN = 1
@@ -49,4 +60,6 @@ namespace Renderer::Input {
 		KeyboardCode code;
 		KeyboardCode modifier = KeyboardCode::None;
 	};
+
+
 }

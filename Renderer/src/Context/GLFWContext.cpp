@@ -1,9 +1,12 @@
 #include "Context/GLFWContext.h"
 #include "GLFW/glfw3.h"
 #include "Core/RenderAssert.h"
+#include "Input/InputManager.h"
+#include "Input/InputSystem.h"
+#include "Core/Renderer.h"
+
+
 namespace Renderer::GLFW {
-
-
 
 	GLFWContext::GLFWContext()
 	{
@@ -11,6 +14,11 @@ namespace Renderer::GLFW {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+		mInputManager.reset(new Renderer::Input::InputManager());
+		mInputSystem = Renderer::GlobalRenderer::CreateSystem<Renderer::Input::InputSystem>(mInputManager.get(), nullptr);
+		RenderAsssert::Test(mInputSystem.Valid(), "Issue when creating Input System");
+
 	}
 
 	GLFWContext::~GLFWContext()
@@ -22,6 +30,7 @@ namespace Renderer::GLFW {
 	{
 		mContextWindow = Window(glfwCreateWindow(Widht, Height, name.c_str(), nullptr, {}));
 		INTERNAL_UpdateWindowContext();
+		mInputSystem.get()->BindNewWindow(mContextWindow.get());
 		return Renderer::Core::MakeObserver(mContextWindow.get());
 	}
 
@@ -29,6 +38,7 @@ namespace Renderer::GLFW {
 	{
 		mContextWindow = std::move(window);
 		INTERNAL_UpdateWindowContext();
+		mInputSystem.get()->BindNewWindow(mContextWindow.get());
 		return  Renderer::Core::MakeObserver(mContextWindow.get());
 	}
 
@@ -44,7 +54,7 @@ namespace Renderer::GLFW {
 
 	glm::ivec2 GLFWContext::GetWindowSize()const
 	{
-		glm::ivec2 vec;
+		glm::ivec2 vec = {};
 		if (mContextWindow)
 		{
 			glfwGetWindowSize(mContextWindow.get(), &vec.x, &vec.y);
@@ -55,11 +65,20 @@ namespace Renderer::GLFW {
 
 	glm::ivec2 GLFWContext::GetWindowPos()const
 	{
-		glm::ivec2 vec;
+		glm::ivec2 vec = {};
 		if (mContextWindow)
 		{
 			glfwGetWindowPos(mContextWindow.get(), &vec.x, &vec.y);
 		}
 		return vec;
+	}
+
+	void GLFWContext::PullInputEvents() {
+		mInputSystem.get()->PullEvents();
+	}
+
+	Renderer::Input::InputManager* GLFWContext::GetInputManager()const
+	{
+		return mInputManager.get();
 	}
 }

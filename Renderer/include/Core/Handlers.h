@@ -6,19 +6,24 @@
 
 namespace Renderer::Core {
 
-
+	/*
+	* @brief observer pointer implementation
+	* Observers are just a wrappers of raw pointers, the strong point 
+	* of them are the fact that they guarantee the ownership of the pointer
+	* because it can't be deleted.
+	*/
 	template<class T>
 	struct ObserverHandler {
 		
 
 		ObserverHandler() : mPtr(nullptr) {}
-		explicit ObserverHandler(T* ref) : mPtr(ref) {}
+		ObserverHandler(T* ref) : mPtr(ref) {}
 		explicit ObserverHandler(const std::unique_ptr<T>& handler) : mPtr(handler.get()) {}
 		explicit ObserverHandler(const ObserverHandler&) = default;
 		ObserverHandler& operator=(const ObserverHandler&) = default;
 		
-		ObserverHandler(ObserverHandler&&) = delete;
-		ObserverHandler& operator =(ObserverHandler&&) = delete;
+		ObserverHandler(ObserverHandler&&) = default;
+		ObserverHandler& operator =(ObserverHandler&&) = default;
 
 		[[nodiscard]] bool Valid()const { return mPtr; }
 		void release() { mPtr = nullptr; }
@@ -26,7 +31,6 @@ namespace Renderer::Core {
 
 		[[nodiscard]] T* operator->()const { return mPtr; }
 		[[nodiscard]] T* get()const { return mPtr; }
-
 		operator T*() {return mPtr; }
 
 	private: 

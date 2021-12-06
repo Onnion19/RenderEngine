@@ -4,8 +4,12 @@
 #include "Core/Handlers.h"
 #include "Window/Window.h"
 #include "vec2.hpp"
+#include <memory>
 
-
+namespace  Renderer::Input {
+	class InputManager;
+	class InputSystem;
+}
 
 
 namespace Renderer::GLFW
@@ -36,13 +40,22 @@ namespace Renderer::GLFW
 		[[nodiscard]] glm::ivec2 GetWindowSize()const;
 		[[nodiscard]] glm::ivec2 GetWindowPos()const;
 
-		void RegisterCallback() {}
+		/*
+			Process all the input events and clears the buffer.
+		*/
+		void PullInputEvents();
+
+		Renderer::Input::InputManager* GetInputManager()const;
 
 	private:
 
 		void INTERNAL_UpdateWindowContext();
 
 		Window mContextWindow;
+		std::unique_ptr<Renderer::Input::InputManager> mInputManager;
+
+		//Cached pointers just for avoid some extra look up;
+		Observer<Renderer::Input::InputSystem> mInputSystem;
 
 	};
 

@@ -8,6 +8,12 @@
 
 namespace Renderer::Input {
 
+	/*
+	* @brief handles input events and forwards to the consumers
+	* 
+	* This is the user facing interface when registering to any input event.
+	* Basically it stores functions callbacks with a token to check if the binded object is still alive.
+	*/
 	class InputManager {
 
 		struct KeyCallback {
@@ -18,16 +24,19 @@ namespace Renderer::Input {
 		};
 
 		using Callback = Renderer::Callbacks::Callback<void, KeyInfo>;
-		using KeyCallbackMap = std::map<KeyboardCode, KeyCallback>;
+		using KeyCallbackMap = std::map<BitMask, KeyCallback>;
 		using Token = Renderer::Core::TokenOwner;
 	public:
 		InputManager() = default;
 
-		Token RegisterEvent(Callback::type&& function, KeyboardCode code, ButtonStatus stauts);
+		[[nodiscard]] Token RegisterEvent(Callback::type&& function, KeyboardCode code, ButtonStatus stauts);
+		[[nodiscard]] Token RegisterEvent(Callback::type&& function, BitMask code, ButtonStatus stauts);
 		void RegisterEvent(const Token&, Callback::type&& function, KeyboardCode code, ButtonStatus status);
+		void RegisterEvent(const Token&, Callback::type&& function, BitMask code, ButtonStatus status);
 		void UnregisterEvent(KeyboardCode code, ButtonStatus status, const Token& token);
+		void UnregisterEvent(BitMask code, ButtonStatus status, const Token& token);
 
-	private: 
+	private:
 		void ProcessEvent(const KeyInfo& key);
 
 	private:

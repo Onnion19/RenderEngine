@@ -16,6 +16,4 @@ namespace Renderer::Window {
 
 	using GLFWwindowPointer = std::unique_ptr<GLFWwindow, GLFWwindowDeleter>;
 
-
-
 }
