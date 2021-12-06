@@ -29,8 +29,9 @@ project "Renderer"
 		language "C++"
 		cppdialect "C++17"
 		location "build/%{prj.name}"
+		warnings "Extra"
 		
-		
+		flags {"FatalWarnings"}
 		targetdir ("bin/output/" .. "%{cfg.buildcfg}")
 		objdir ("bin/int/" .. "%{cfg.buildcfg}")
 		
@@ -53,8 +54,8 @@ project "Application"
 		language "C++"
 		cppdialect "C++17"
 		location "build/%{prj.name}"
-		
-		
+		warnings "Extra"
+		flags {"FatalWarnings"}
 		targetdir ("bin/output/" .. "%{cfg.buildcfg}")
 		objdir ("bin/int/" .. "%{cfg.buildcfg}")
 		
