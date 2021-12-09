@@ -19,11 +19,18 @@ namespace Renderer::Core {
 		ObserverHandler() : mPtr(nullptr) {}
 		ObserverHandler(T* ref) : mPtr(ref) {}
 		explicit ObserverHandler(const std::unique_ptr<T>& handler) : mPtr(handler.get()) {}
-		explicit ObserverHandler(const ObserverHandler&) = default;
-		ObserverHandler& operator=(const ObserverHandler&) = default;
+		explicit ObserverHandler(const ObserverHandler&) noexcept = default;
+		ObserverHandler& operator=(const ObserverHandler&) noexcept = default;
 		
-		ObserverHandler(ObserverHandler&&) = default;
-		ObserverHandler& operator =(ObserverHandler&&) = default;
+		ObserverHandler(ObserverHandler&& o) noexcept {
+			mPtr = o.mPtr;
+			o.mPtr = nullptr;
+		}
+		ObserverHandler& operator =(ObserverHandler&& o) noexcept {
+			mPtr = o.mPtr;
+			o.mPtr = nullptr;
+			return *this;
+		}
 
 		[[nodiscard]] bool Valid()const { return mPtr; }
 		void release() { mPtr = nullptr; }
