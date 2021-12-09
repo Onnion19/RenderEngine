@@ -33,10 +33,14 @@ int main()
 		return -1;
 	}
 	auto lambda = [](Renderer::Input::KeyInfo key) {
-		std::cout << static_cast<int32>(key.code) << std::endl;
+
+		string status = (key.status == Renderer::Input::ButtonStatus::DOWN) ? "DOWN" : "UP";
+
+		std::cout << status << " Key: " << Renderer::Input::DebugKeyCodeText(key.code) << " Modifier: " << Renderer::Input::DebugKeyCodeText(key.modifier) << std::endl << std::endl;
 	};
 
-	auto token = context.GetInputManager()->RegisterEvent(lambda, Renderer::Input::KeyboardCode::A, Renderer::Input::ButtonStatus::DOWN);
+	auto token = context.GetInputManager()->RegisterEvent(lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::DOWN);
+	context.GetInputManager()->RegisterEvent(token, lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::UP);
 
 	while (!close)
 	{
