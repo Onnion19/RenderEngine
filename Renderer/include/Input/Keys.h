@@ -61,5 +61,9 @@ namespace Renderer::Input {
 		KeyboardCode modifier = KeyboardCode::None;
 	};
 
-
+#if RENDERER_DEBUG
+	string DebugKeyCodeText(KeyboardCode code);
+#else
+	constexpr char DebugKeyCodeText(KeyboardCode code);
+#endif
 }

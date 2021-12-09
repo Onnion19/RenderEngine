@@ -42,7 +42,7 @@ constexpr bool AreBitsSets(int32 number, Bits&& ... bits)
 {
 	const BitMask b = BuildBitMask(std::forward<Bits>(bits)...);
 	const auto n = (number & b);
-	return n>0 && n == number;
+	return n>0 && n == b;
 }
 
 constexpr bool MaskComparisson(int32 number, BitMask mask)

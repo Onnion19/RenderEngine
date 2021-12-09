@@ -123,6 +123,7 @@ namespace Renderer::Input {
 		KeyboardCode modifierKey = Internal::GetModifierCode(mInputMask);
 		KeyboardCode lastModifierKey = Internal::GetModifierCode(mInputMaskLastFrame);
 
+		//todo: optimize
 		for (int i = 1; i < 27; i++) //Ignore control values, see Keys.h
 		{
 			//Input for this bit has changed

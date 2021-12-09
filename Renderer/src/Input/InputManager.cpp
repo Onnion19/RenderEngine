@@ -81,14 +81,31 @@ namespace Renderer::Input {
 		if (key.modifier != KeyboardCode::None) {
 			mask |= static_cast<BitMask>(key.modifier);
 		}
-		auto& buffer = (key.status == ButtonStatus::DOWN) ? mCallbacks[mask].onDownCallbacks : mCallbacks[mask].onUpCallbacks;
 
-		for (auto& callback : buffer)
 		{
-			callback(key);
+			auto& buffer = (key.status == ButtonStatus::DOWN) ? mCallbacks[mask].onDownCallbacks : mCallbacks[mask].onUpCallbacks;
+
+			for (auto& callback : buffer)
+			{
+				callback(key);
+			}
+
+			Internal::UnregisterAllDangling(buffer);
 		}
 
-		Internal::UnregisterAllDangling(buffer);
+		//Call for any key: 
+		{
+			auto AnyKeyMask = static_cast<BitMask>(KeyboardCode::None);
+			auto& buffer = (key.status == ButtonStatus::DOWN) ? mCallbacks[AnyKeyMask].onDownCallbacks : mCallbacks[AnyKeyMask].onUpCallbacks;
+
+			for (auto& callback : buffer)
+			{
+				callback(key);
+			}
+
+			Internal::UnregisterAllDangling(buffer);
+		}
+
 
 	}
 
