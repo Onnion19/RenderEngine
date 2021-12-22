@@ -4,11 +4,6 @@
 #include <iostream>
 
 
-
-
-
-
-
 struct RenderAsssert {
 	template <class T>
 	static inline void Test(T param, const std::string& message = "") {
