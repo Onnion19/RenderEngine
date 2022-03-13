@@ -2,6 +2,11 @@
 #include <cstdint>
 #include <string>
 #include "vec2.hpp"
+#include "vec3.hpp"
+#include "vec4.hpp"
+#include "mat2x2.hpp"
+#include "mat3x3.hpp"
+#include "mat4x4.hpp"
 #include "Core/Handlers.h"
 
 /*******************************
@@ -21,6 +26,24 @@ typedef std::uint64_t uint64;
 *******************************/
 
 typedef std::string string;
+
+
+/*******************************
+		VECTOR TYPES
+*******************************/
+
+typedef glm::vec2 vec2;
+typedef glm::vec3 vec3;
+typedef glm::vec4 vec4;
+
+/*******************************
+		MATRIX TYPES
+*******************************/
+
+typedef glm::mat2 mat2;
+typedef glm::mat3 mat3;
+typedef glm::mat4 mat4;
+
 
 /*******************************
 		BIT IMPLEMENTATION
