@@ -30,6 +30,7 @@ TEST(AliveTokenTest, OutOfScope)
 		TokenOwner owner2; 
 		TokenObserver observer2(owner2);
 		observer = std::move(observer2);
+		EXPECT_FALSE(observer2);
 	}
 
 	EXPECT_FALSE(observer);
