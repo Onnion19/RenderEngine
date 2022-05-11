@@ -10,31 +10,53 @@
 template<class T>
 struct QueueIterator {
 	QueueIterator(T* origin, uint32 index, uint32 max) noexcept : mData(origin), mIndex(index), mMax(max) {}
-	QueueIterator(const QueueIterator&)noexcept = default;
-	QueueIterator& operator=(const QueueIterator&) noexcept = default;
-
-	 QueueIterator(QueueIterator&& o)noexcept {
+	QueueIterator(const QueueIterator& o)noexcept : mData(o.mData), mIndex(o.mIndex), mMax(o.mMax) {}
+	QueueIterator& operator=(const QueueIterator& o) noexcept
+	{
+		mData = o.mdata;
 		mIndex = o.mIndex;
 		mMax = o.mMax;
+		return *this;
+	}
+
+	QueueIterator(QueueIterator&& o)noexcept {
+		mIndex = o.mIndex;
+		mMax = o.mMax;
+		mData = o.mData;
 		o.mData = nullptr;
 	}
 
-	 QueueIterator& operator=(QueueIterator&& o)noexcept {
+	QueueIterator& operator=(QueueIterator&& o)noexcept {
 		mIndex = o.mIndex;
 		mMax = o.mMax;
+		mData = o.mData;
 		o.mData = nullptr;
 	}
 
 	QueueIterator& operator++() noexcept
 	{
-		index = (index + 1) % mMax;
+		mIndex = (mIndex + 1) % mMax;
 		return *this;
 	}
 
 	QueueIterator& operator--() noexcept
 	{
-		index = std::min(mMax, index - 1);
+		mIndex = std::min(mMax - 1, mIndex - 1);
 		return *this;
+	}
+
+	QueueIterator operator-(uint32 i) noexcept
+	{
+		QueueIterator it(*this);
+		it.mIndex = std::min(mIndex - i, mMax - 1);
+		return it;
+	}
+
+	QueueIterator operator+(uint32 i) noexcept
+	{
+		QueueIterator it(*this);
+		it.mIndex = (mIndex + i) % mMax;
+		return it;
 	}
 
 	[[nodiscard]] T* get()const noexcept { return mData + mIndex; }
@@ -80,11 +102,11 @@ public:
 		if (nItems <= Size)
 		{
 			T t(std::forward<Args>(args)...);
-			for(uint32 i = 0; i < nItems; i++)
+			for (uint32 i = 0; i < nItems; i++)
 				memcpy(&mArray[i], &t, sizeof(T));
 			mItems = nItems;
 			mBegin = 0;
-			mEnd = mItems-1;
+			mEnd = mItems % Size;
 		}
 	}
 
@@ -101,18 +123,34 @@ public:
 		return std::nullopt;
 	}
 
+
+	template<class SortingClass, class ... Args>
+	QueueIterator<T> UnsafeSortedEnqueue(SortingClass funct, Args && ... args) noexcept {
+		RenderAsssert::Test(HasSpace(), "Queue's space is full");
+		auto it = FindInsertingPos(std::move(funct));
+		for (iterator iter = End(); iter != it; --iter)
+		{
+			iterator previous = iter - 1;
+			*iter = *previous;
+		}
+
+		*it = T(std::forward<Args>(args)...);
+		mItems++;
+		return it;
+	}
+
 	template<class ... Args>
 	QueueIterator<T> UnsafeEnqueue(Args && ... args) noexcept {
 		RenderAsssert::Test(HasSpace(), "Queue's space is full");
 		mArray[mEnd] = T(std::forward<Args>(args)...);
 		auto t = T(std::forward<Args>(args)...);
-		mItems = mItems+1;
+		mItems++;
 		const iterator iter(mArray, mEnd, mItems);
 		mEnd = GetNextIndice(mEnd);
 		return iter;
 	}
 
-	[[nodiscard]]std::optional<T> SafeDequeue() {
+	[[nodiscard]] std::optional<T> SafeDequeue() {
 		if (mItems)
 		{
 			T item = mArray[mBegin];
@@ -124,13 +162,13 @@ public:
 		return std::nullopt;
 	}
 
-	[[nodiscard]]T&& UnsafeDequeue() {
+	[[nodiscard]] T&& UnsafeDequeue() {
 		RenderAsssert::Test(mItems, "Queue is Empty, can't dequeue");
 		T item = mArray[mBegin];
 		mArray[mBegin] = {};
 		mBegin = GetNextIndice(mBegin);
 		mItems--;
-		return std::move<item>;
+		return std::move(item);
 	}
 
 	[[nodiscard]] constexpr int32 MaxSize()const noexcept { return Size; }
@@ -153,6 +191,20 @@ private:
 
 	[[nodiscard]] bool HasSpace() const noexcept { return mItems < Size; }
 	[[nodiscard]] indice GetNextIndice(indice from)const noexcept { return (from + 1) % Size; }
+	[[nodiscard]] indice GetPreviousIndice(indice from)const noexcept { return std::min(from - 1u, Size - 1u); }
+
+	template<class SortingFunction>
+	[[nodiscard]] iterator FindInsertingPos(SortingFunction functor) {
+		if (mItems == 0)return Begin();
+
+		iterator i = Begin();
+		const iterator end = End();
+		while (i != end && functor(*i, *(i+1)))
+		{
+			++i;
+		}
+		return i;
+	}
 
 private:
 	T mArray[Size];

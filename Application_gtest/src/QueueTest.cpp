@@ -87,5 +87,20 @@ TEST(Queue, Cycle)
 	EXPECT_EQ(myQueue.GetSize(), 5);
 	auto end = myQueue.End();
 
-	EXPECT_TRUE(front == end);
+	EXPECT_TRUE(++front == end);
+}
+
+
+TEST(Queue, SortOperations)
+{
+	const int32 size = 5;
+	Queue<Foo, size> myQueue;
+	auto sorting = [](const Foo& a, const Foo& b) {return a.x < b.x; };
+	myQueue.UnsafeSortedEnqueue( sorting, 4);
+	EXPECT_EQ(myQueue.Front()->x, 4);
+
+	myQueue.UnsafeSortedEnqueue( sorting, 1);
+	EXPECT_EQ(myQueue.Front()->x, 1);
+
+
 }
