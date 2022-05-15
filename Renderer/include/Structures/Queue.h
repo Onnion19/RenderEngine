@@ -5,6 +5,10 @@
 #include "Core/RenderAssert.h"
 
 /**
+* Iterators will go trhough all the queue array items, either valid or invalid.
+* Begin = first valid element of the queue
+* End = first INVALID element of the queue
+* If the queue is full, aka all the array is filled, begin == end.
 * Queue iterators will get invalidated when the queue itself changes, due to the mMax will be different so won't compute properly.
 */
 template<class T>
@@ -199,7 +203,7 @@ private:
 
 		iterator i = Begin();
 		const iterator end = End();
-		while (i != end && functor(*i, *(i+1)))
+		while (i != end && functor(*i, *(i + 1)))
 		{
 			++i;
 		}
@@ -208,7 +212,7 @@ private:
 
 private:
 	T mArray[Size];
-	indice mItems;
-	indice mBegin;
-	indice mEnd;
+	indice mItems; // number of items
+	indice mBegin;//points to the beginning
+	indice mEnd; //points next to the last element;
 };

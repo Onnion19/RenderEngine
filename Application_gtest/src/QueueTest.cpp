@@ -28,7 +28,8 @@ TEST(Queue, Enqueue)
 	for (int i = 0; i < size; i++)
 	{
 		myQueue.SafeEnqueue(i);
-		EXPECT_EQ(myQueue.GetSize(), i+1);
+		EXPECT_EQ(myQueue.GetSize(), i + 1);
+		EXPECT_EQ(myQueue.Front()->x, 0);
 	}
 }
 
@@ -36,12 +37,12 @@ TEST(Queue, Enqueue)
 TEST(Queue, Dequeue)
 {
 	const int32 size = 5;
-	Queue<Foo, size> myQueue(size,2);
+	Queue<Foo, size> myQueue(size, 2);
 
 	for (int i = 0; i < size; i++)
 	{
 		[[maybe_unusued]] auto t = myQueue.SafeDequeue();
-		EXPECT_EQ(myQueue.GetSize(), size - i-1);
+		EXPECT_EQ(myQueue.GetSize(), size - i - 1);
 	}
 }
 
@@ -66,12 +67,12 @@ TEST(Queue, RandomOperations)
 TEST(Queue, Fill)
 {
 	const int32 size = 5;
-	Queue<Foo, size> myQueue = Queue<Foo,size>(size,2);
+	Queue<Foo, size> myQueue = Queue<Foo, size>(size, 2);
 
 	EXPECT_EQ(myQueue.GetSize(), 5);
-	EXPECT_EQ(myQueue.MaxSize(),size);
+	EXPECT_TRUE(myQueue.Front() == myQueue.End());
+	EXPECT_EQ(myQueue.MaxSize(), size);
 	EXPECT_TRUE(myQueue.SafeDequeue().has_value());
-	EXPECT_TRUE(myQueue.Front() != myQueue.End());
 }
 
 
@@ -96,10 +97,10 @@ TEST(Queue, SortOperations)
 	const int32 size = 5;
 	Queue<Foo, size> myQueue;
 	auto sorting = [](const Foo& a, const Foo& b) {return a.x < b.x; };
-	myQueue.UnsafeSortedEnqueue( sorting, 4);
+	myQueue.UnsafeSortedEnqueue(sorting, 4);
 	EXPECT_EQ(myQueue.Front()->x, 4);
 
-	myQueue.UnsafeSortedEnqueue( sorting, 1);
+	myQueue.UnsafeSortedEnqueue(sorting, 1);
 	EXPECT_EQ(myQueue.Front()->x, 1);
 
 
