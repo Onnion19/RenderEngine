@@ -72,6 +72,8 @@ namespace Renderer
 
 		}
 
+		~GlobalRenderer() { Reset(); }
+
 	private:
 		GlobalRenderer() = delete;
 		static std::unordered_map<int64, std::any> mSystems;
