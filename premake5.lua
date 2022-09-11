@@ -27,7 +27,7 @@ workspace "Renderer"
 project "Renderer"
 		kind "StaticLib"
 		language "C++"
-		cppdialect "C++17"
+		cppdialect "C++20"
 		location "build/%{prj.name}"
 		warnings "Extra"
 		
@@ -52,7 +52,7 @@ project "Application"
 
 		kind "ConsoleApp"
 		language "C++"
-		cppdialect "C++17"
+		cppdialect "C++20"
 		location "build/%{prj.name}"
 		warnings "Extra"
 		flags {"FatalWarnings"}
@@ -80,7 +80,7 @@ project "Application_gtest"
 
 		kind "ConsoleApp"
 		language "C++"
-		cppdialect "C++17"
+		cppdialect "C++20"
 		location "build/%{prj.name}"
 		
 		targetdir ("bin/output/" .. "%{cfg.buildcfg}" .. "/Test")
