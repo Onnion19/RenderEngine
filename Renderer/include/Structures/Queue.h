@@ -130,7 +130,7 @@ public:
 
 	template<class SortingClass, class ... Args>
 	QueueIterator<T> UnsafeSortedEnqueue(SortingClass funct, Args && ... args) noexcept {
-		RenderAsssert::Test(HasSpace(), "Queue's space is full");
+		RenderAssert(HasSpace(), "Queue's space is full");
 		auto it = FindInsertingPos(std::move(funct));
 		for (iterator iter = End(); iter != it; --iter)
 		{
@@ -145,7 +145,7 @@ public:
 
 	template<class ... Args>
 	QueueIterator<T> UnsafeEnqueue(Args && ... args) noexcept {
-		RenderAsssert::Test(HasSpace(), "Queue's space is full");
+		RenderAssert(HasSpace(), "Queue's space is full");
 		mArray[mEnd] = T(std::forward<Args>(args)...);
 		auto t = T(std::forward<Args>(args)...);
 		mItems++;
@@ -167,7 +167,7 @@ public:
 	}
 
 	[[nodiscard]] T&& UnsafeDequeue() {
-		RenderAsssert::Test(mItems, "Queue is Empty, can't dequeue");
+		RenderAssert(mItems, "Queue is Empty, can't dequeue");
 		T item = mArray[mBegin];
 		mArray[mBegin] = {};
 		mBegin = GetNextIndice(mBegin);

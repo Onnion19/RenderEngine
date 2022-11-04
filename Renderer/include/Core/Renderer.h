@@ -39,7 +39,7 @@ namespace Renderer
 		template<class T, class ... Args>
 		static Observer<T> CreateSystem(Args&& ... args) {
 			const std::intptr_t adress = Internal::GetHash<T>();
-			RenderAsssert::Test(mSystems.find(adress) == mSystems.end(), "Can't store multiple systems of the same type");
+			RenderAssert(mSystems.find(adress) == mSystems.end(), "Can't store multiple systems of the same type");
 			T* t = new T(std::forward<Args>(args)...);
 			mSystems[adress] = t;
 			return Core::MakeObserver(t);

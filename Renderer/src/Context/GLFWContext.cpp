@@ -17,7 +17,7 @@ namespace Renderer::GLFW {
 
 		mInputManager.reset(new Renderer::Input::InputManager());
 		mInputSystem = Renderer::GlobalRenderer::CreateSystem<Renderer::Input::InputSystem>(mInputManager.get(), nullptr);
-		RenderAsssert::Test(mInputSystem.Valid(), "Issue when creating Input System");
+		RenderAssert(mInputSystem.Valid(), "Issue when creating Input System");
 
 	}
 
@@ -46,7 +46,7 @@ namespace Renderer::GLFW {
 
 	void GLFWContext::INTERNAL_UpdateWindowContext()
 	{
-		RenderAsssert::Test(mContextWindow.get() != nullptr, "Context has now window associated");
+		RenderAssert(mContextWindow.get() != nullptr, "Context has now window associated");
 		glfwMakeContextCurrent(mContextWindow.get());
 	}
 

@@ -9,7 +9,7 @@ namespace Renderer::Window {
 	struct GLFWwindowDeleter {
 		void operator() (GLFWwindow* ptr) {
 
-			RenderAsssert::Test(ptr != nullptr, "Attempting to delete a null window");
+			RenderAssert(ptr != nullptr, "Attempting to delete a null window");
 			glfwDestroyWindow(ptr);
 		}
 	};

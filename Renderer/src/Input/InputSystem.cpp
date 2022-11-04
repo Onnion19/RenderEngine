@@ -82,7 +82,7 @@ namespace Renderer::Input {
 
 	InputSystem::InputSystem(Observer<InputManager> manager, Observer<GLFWwindow> window)
 	{
-		RenderAsssert::Test(manager != nullptr, "No Input manager detected");
+		RenderAssert(manager != nullptr, "No Input manager detected");
 		mMangaer = manager;
 		mWindow = window;
 		BindCallback();
@@ -102,7 +102,7 @@ namespace Renderer::Input {
 
 		glfwSetKeyCallback(mWindow.get(), []([[maybe_unused]] GLFWwindow* window, int key, [[maybe_unused]]int scancode, int action, [[maybe_unused]] int mods) {
 			InputSystem* system = GlobalRenderer::GetSystem<InputSystem>();
-			RenderAsssert::Test(system != nullptr, "No Input System detected");
+			RenderAssert(system != nullptr, "No Input System detected");
 
 			auto k = Internal::GlfwToKeyCode(key);
 			system->AddInputKey(k, action == GLFW_RELEASE);
