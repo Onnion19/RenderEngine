@@ -66,10 +66,10 @@ typedef glm::mat4 mat4;
 *******************************/
 typedef int32 BitMask;
 
-constexpr int32 Bit_(int n) { return 1 << n; }
+constexpr int32 Bit_(int n) { return 1 << n; };
 
 template<int n>
-struct Bit { enum { value = (Bit_(n) }; };
+struct Bit { enum { value = 1 << n }; };
 
 
 template <class ... Bits>
