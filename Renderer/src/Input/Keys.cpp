@@ -35,8 +35,6 @@ namespace Renderer::Input {
 		return keyName;
 
 	}
-#else 
-	char DebugKeyCodeText(KeyboardCode code) { return 'A'; }
 #endif
 
 }
