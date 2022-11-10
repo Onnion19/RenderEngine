@@ -5,9 +5,9 @@
 
 
 struct RenderAsssert {
+#if RENDERER_DEBUG
 	template <class T>
 	static inline void Test(T param, const std::string& message = "") {
-#if RENDERER_DEBUG
 		static_assert(std::is_arithmetic<T>::value);
 		if (!param)
 		{
@@ -17,7 +17,12 @@ struct RenderAsssert {
 			}
 			abort();
 		}
-#endif
 	}
+#else 
+	template <class T>
+	static inline void Test([[maybe_unused]] T param, [[maybe_unused]]const std::string& message = "") {
+
+	}
+#endif
 
 };
