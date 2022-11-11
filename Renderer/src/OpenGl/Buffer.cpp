@@ -1,60 +1,74 @@
 #include "OpenGl/Buffer.h"
 #include "Core/RenderAssert.h"
 
-namespace Renderer::GL {
+namespace Renderer::GL::Internal {
 
-	OpenGlBuffer::OpenGlBuffer()
+	OpenGlBufferBase::OpenGlBufferBase()
 	{
 		GenerateBuffer();
 	}
 
-	OpenGlBuffer::OpenGlBuffer(OpenGLUtils::Buffer::BufferType type)
+	OpenGlBufferBase::OpenGlBufferBase(OpenGLUtils::Buffer::BufferType type)
 	{
 		GenerateBuffer();
 		Bind(type);
 	}
 
-	OpenGlBuffer::OpenGlBuffer(OpenGlBuffer&& o)
+	OpenGlBufferBase::OpenGlBufferBase(const OpenGlBufferBase& o) noexcept
 	{
-		mBufferID = o.mBufferID;
-		o.mBufferID = 0;
-
+		GenerateBuffer();
+		Bind(o.mType);
 	}
 
-	OpenGlBuffer& OpenGlBuffer::operator=(OpenGlBuffer&& o)
+	OpenGlBufferBase& OpenGlBufferBase::operator=(const OpenGlBufferBase& o) noexcept
 	{
-		mBufferID = o.mBufferID;
-		o.mBufferID = 0;
+		GenerateBuffer();
+		Bind(o.mType);
 		return *this;
 	}
 
-	void OpenGlBuffer::Bind(OpenGLUtils::Buffer::BufferType type)
+	OpenGlBufferBase::OpenGlBufferBase(OpenGlBufferBase&& o) noexcept
 	{
+		GenerateBuffer();
+		Bind(o.mType);
+	}
+
+	OpenGlBufferBase& OpenGlBufferBase::operator=(OpenGlBufferBase&& o) noexcept
+	{
+		GenerateBuffer();
+		Bind(o.mType);
+		return *this;
+	}
+
+	void OpenGlBufferBase::Bind(OpenGLUtils::Buffer::BufferType type)
+	{
+		mType = type;
 		BindBuffer(type);
 	}
 
-	inline bool OpenGlBuffer::operator==(const OpenGlBuffer& other) const
+	inline bool OpenGlBufferBase::operator==(const OpenGlBufferBase& other) const noexcept
 	{
-		RenderAssert(mBufferID == other.mBufferID, "It should not be possible to havem ultiple buffers with the same ID");
+		RenderAssert(mBufferID == other.mBufferID, "It should not be possible to have multiple buffers with the same ID");
 		return mBufferID == other.mBufferID;
 	}
 
-	OpenGlBuffer::~OpenGlBuffer()
+	OpenGlBufferBase::~OpenGlBufferBase() noexcept
 	{
-		RenderAssert(mBufferID > 0, "Trying to delete an invalid buffer ID. Has it been generated previously?");
-		glDeleteBuffers(1, &mBufferID);
+		if (mBufferID != 0) {
+			glDeleteBuffers(1, &mBufferID);
+		}
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
 
-	void OpenGlBuffer::GenerateBuffer()
+	void OpenGlBufferBase::GenerateBuffer()
 	{
-		RenderAssert(mBufferID <= 0, "Trying to generate an already generated buffer");
+		RenderAssert(mBufferID > 0, "Trying to generate an already generated buffer");
 		glGenBuffers(1, &mBufferID);
 	}
 
-	void OpenGlBuffer::BindBuffer(OpenGLUtils::Buffer::BufferType type)
+	void OpenGlBufferBase::BindBuffer(OpenGLUtils::Buffer::BufferType type)
 	{
 		glBindBuffer(BufferTypeToOpenglEnum(type), mBufferID);
 	}
