@@ -5,7 +5,6 @@
 #include "Input/InputSystem.h"
 #include "Core/Renderer.h"
 
-
 namespace Renderer::GLFW {
 
 	GLFWContext::GLFWContext()
@@ -18,7 +17,6 @@ namespace Renderer::GLFW {
 		mInputManager.reset(new Renderer::Input::InputManager());
 		mInputSystem = Renderer::GlobalRenderer::CreateSystem<Renderer::Input::InputSystem>(mInputManager.get(), nullptr);
 		RenderAssert(mInputSystem.Valid(), "Issue when creating Input System");
-
 	}
 
 	GLFWContext::~GLFWContext()
@@ -30,6 +28,7 @@ namespace Renderer::GLFW {
 	{
 		mContextWindow = Window(glfwCreateWindow(Widht, Height, name.c_str(), nullptr, {}));
 		INTERNAL_UpdateWindowContext();
+		INTERNAL_LoadGlad();
 		mInputSystem.get()->BindNewWindow(mContextWindow.get());
 		return Renderer::Core::MakeObserver(mContextWindow.get());
 	}
@@ -50,6 +49,10 @@ namespace Renderer::GLFW {
 		glfwMakeContextCurrent(mContextWindow.get());
 	}
 
+	void GLFWContext::INTERNAL_LoadGlad() {
+		[[maybe_unused]] const auto loaded =  gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		RenderAssert(loaded, "Failed To initialize glad");
+	}
 
 
 	glm::ivec2 GLFWContext::GetWindowSize()const

@@ -1,6 +1,5 @@
 
 #include "Context/GLFWContext.h"
-
 #include <iostream>
 #include <array>
 #include <functional>
@@ -15,7 +14,7 @@ bool close = false;
 
 int main()
 {
-	// 
+
 	// glfw: initialize and configure
 	// ------------------------------
 	Renderer::GLFW::GLFWContext context;
@@ -25,12 +24,6 @@ int main()
 	if (!window.Valid())
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
-		return -1;
-	}
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
 	auto lambda = [](Renderer::Input::KeyInfo key) {
@@ -112,6 +105,7 @@ int main()
 
 	while (!close)
 	{
+		//this is wrong, this will only work for one window. See https://discourse.glfw.org/t/how-to-create-multiple-window/1398/2
 		context.PullInputEvents();
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			close = true;

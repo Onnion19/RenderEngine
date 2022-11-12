@@ -1,5 +1,5 @@
 #pragma once 
-#include "glad/glad.h"
+#include <glad/glad.h>
 #include "Core/types.h"
 #include "Core/Handlers.h"
 #include "Window/Window.h"
@@ -50,13 +50,15 @@ namespace Renderer::GLFW
 	private:
 
 		void INTERNAL_UpdateWindowContext();
+		static void INTERNAL_LoadGlad();
+
+	private:
 
 		Window mContextWindow;
 		std::unique_ptr<Renderer::Input::InputManager> mInputManager;
 
 		//Cached pointers just for avoid some extra look up;
 		Observer<Renderer::Input::InputSystem> mInputSystem;
-
 	};
 
 }
