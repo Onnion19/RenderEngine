@@ -43,7 +43,7 @@ namespace Renderer::GL::Internal {
 	void OpenGlBufferBase::Bind(OpenGLUtils::Buffer::BufferType type)
 	{
 		mType = type;
-		BindBuffer(type);
+		Bind();
 	}
 
 	inline bool OpenGlBufferBase::operator==(const OpenGlBufferBase& other) const noexcept
@@ -59,6 +59,10 @@ namespace Renderer::GL::Internal {
 		}
 	}
 
+	GLBufferId OpenGlBufferBase::GetID() const
+	{
+		return mBufferID;
+	}
 
 	/////////////////////////////////////////////////////////////////////////////
 
@@ -68,8 +72,8 @@ namespace Renderer::GL::Internal {
 		glGenBuffers(1, &mBufferID);
 	}
 
-	void OpenGlBufferBase::BindBuffer(OpenGLUtils::Buffer::BufferType type)
+	void OpenGlBufferBase::Bind()
 	{
-		glBindBuffer(BufferTypeToOpenglEnum(type), mBufferID);
+		glBindBuffer(EnumToGLEnum(mType), mBufferID);
 	}
 }

@@ -1,10 +1,10 @@
 
 #include "Context/GLFWContext.h"
 #include <iostream>
-#include <array>
 #include <functional>
 #include "Window/Window.h"
 #include "Input/InputManager.h"
+#include "OpenGl/Buffer.h"
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -36,11 +36,7 @@ int main()
 	auto token = context.GetInputManager()->RegisterEvent(lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::DOWN);
 	context.GetInputManager()->RegisterEvent(token, lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::UP);
 
-	std::array<float, 6> points = {
-		-0.5f , -0.5f,
-		0.5f,-0.5f,
-		0.0f,0.5f
-	};
+	
 
 	//Create Mesh class 
 		// Contains all data: 
@@ -49,19 +45,24 @@ int main()
 		// Assimp? 
 		// Dynamic vs Static meshes
 		// Animations? 
+	struct Vertice2D { float x, y; };
+	std::vector<Vertice2D> points = {
+		{-0.5f , -0.5f},
+		{0.5f,-0.5f},
+		{0.0f,0.5f}
+	};
 
 	//Vertex buffer object
-	GLuint vbo = 0;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points.data(), GL_STATIC_DRAW);
+	Renderer::GL::OpenGlBuffer<Vertice2D> vbo(OpenGLUtils::Buffer::BufferType::ARRAY);
+	vbo.Insert(points);
+	vbo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::STATIC_DRAW);
 
 	//Vertex attribute object
 	GLuint vao = 0;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo.GetID());
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 
