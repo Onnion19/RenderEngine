@@ -27,6 +27,22 @@ namespace Renderer {
 			return GetDataByIndice<index>();
 		}
 
+		template<typename T, class iter, class sentinel>
+		[[nodiscard]] auto GetDataAs(iter begin, sentinel end)
+		{
+			constexpr auto index = TupleHelper::Index<T, bufferTy>::value;
+			auto range = std::ranges::subrange(begin, end);
+			return GetDataByIndice<index>(range);
+		}
+
+		template<typename T, class iter, class sentinel>
+		[[nodiscard]] auto GetDataAs(iter begin, sentinel end) const
+		{
+			constexpr auto index = TupleHelper::Index<T, bufferTy>::value;
+			auto range = std::ranges::subrange(begin, end);
+			return GetDataByIndice<index>(range);
+		}
+
 		[[nodiscard]] const container& GetContainer() const { return mBufferData; }
 		[[nodiscard]] container& GetContainer() { return mBufferData; }
 
@@ -36,6 +52,12 @@ namespace Renderer {
 
 		template<int i>
 		[[nodiscard]] auto GetDataByIndice() { return std::views::elements<i>(mBufferData); }
+
+		template<int i, class Subrange>
+		[[nodiscard]] auto GetDataByIndice(Subrange& s) { return std::views::elements<i>(s); }
+
+		template<int i, class Subrange>
+		[[nodiscard]] auto GetDataByIndice(const Subrange& s) const { return std::views::elements<i>(s); }
 	private:
 		container mBufferData;
 	};
