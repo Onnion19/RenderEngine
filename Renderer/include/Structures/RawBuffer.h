@@ -43,6 +43,12 @@ namespace Renderer {
 			return GetDataByIndice<index>(range);
 		}
 
+		iter begin() { return mBufferData.begin(); }
+		const_iter begin() const { return mBufferData.begin(); }
+
+		iter end() { return mBufferData.end(); }
+		const_iter end() const { return mBufferData.end(); }
+
 		[[nodiscard]] const container& GetContainer() const { return mBufferData; }
 		[[nodiscard]] container& GetContainer() { return mBufferData; }
 

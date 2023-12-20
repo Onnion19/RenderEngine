@@ -5,6 +5,7 @@
 #include "Window/Window.h"
 #include "Input/InputManager.h"
 #include "OpenGl/Buffer.h"
+#include "OpenGl/VertexAttributeObject.h"
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -31,12 +32,12 @@ int main()
 		string status = (key.status == Renderer::Input::ButtonStatus::DOWN) ? "DOWN" : "UP";
 
 		std::cout << status << " Key: " << Renderer::Input::DebugKeyCodeText(key.code) << " Modifier: " << Renderer::Input::DebugKeyCodeText(key.modifier) << std::endl << std::endl;
-	};
+		};
 
 	auto token = context.GetInputManager()->RegisterEvent(lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::DOWN);
 	context.GetInputManager()->RegisterEvent(token, lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::UP);
 
-	
+
 
 	//Create Mesh class 
 		// Contains all data: 
@@ -52,18 +53,26 @@ int main()
 		{0.0f,0.5f}
 	};
 
+
+
+
+
 	//Vertex buffer object
 	Renderer::GL::OpenGlBuffer<Vertice2D> vbo(OpenGLUtils::Buffer::BufferType::ARRAY);
 	vbo.Insert(points);
 	vbo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::STATIC_DRAW);
 
+
+	Renderer::GL::VertexAtributeObject vao;
+	vao.Bind();
+	Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Vertice2D> properties{ 0 ,3, OpenGLUtils::Buffer::GLType::FLOAT, false };
+	vao.EnableAndDefineAttributePointer(properties);
 	//Vertex attribute object
-	GLuint vao = 0;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo.GetID());
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	//GLuint vao = 0;
+	//glGenVertexArrays(1, &vao);
+	//glBindVertexArray(vao);
+	//glEnableVertexAttribArray(0);
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 
 	// Create material
@@ -113,15 +122,12 @@ int main()
 		glfwPollEvents();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glBindVertexArray(vao);
+
 		// draw points 0-3 from the currently bound VAO with current in-use shader
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		// update other events like input handling
 
-
 		glfwSwapBuffers(window.get());
-
-
 	}
 	return 0;
 }

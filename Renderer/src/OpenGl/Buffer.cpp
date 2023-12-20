@@ -3,47 +3,44 @@
 
 namespace Renderer::GL::Internal {
 
-	OpenGlBufferBase::OpenGlBufferBase()
-	{
-		GenerateBuffer();
-	}
 
 	OpenGlBufferBase::OpenGlBufferBase(OpenGLUtils::Buffer::BufferType type)
 	{
 		GenerateBuffer();
-		Bind(type);
+		mType = type;
 	}
 
 	OpenGlBufferBase::OpenGlBufferBase(const OpenGlBufferBase& o) noexcept
 	{
 		GenerateBuffer();
-		Bind(o.mType);
+		mType = o.mType;
 	}
 
 	OpenGlBufferBase& OpenGlBufferBase::operator=(const OpenGlBufferBase& o) noexcept
 	{
 		GenerateBuffer();
-		Bind(o.mType);
+		mType = o.mType;
 		return *this;
 	}
 
 	OpenGlBufferBase::OpenGlBufferBase(OpenGlBufferBase&& o) noexcept
 	{
-		GenerateBuffer();
-		Bind(o.mType);
+		mBufferID = o.mBufferID;
+		o.mBufferID = 0;
+		mType = o.mType;
 	}
 
 	OpenGlBufferBase& OpenGlBufferBase::operator=(OpenGlBufferBase&& o) noexcept
 	{
-		GenerateBuffer();
-		Bind(o.mType);
+		mBufferID = o.mBufferID;
+		o.mBufferID = 0;
+		mType = o.mType;
 		return *this;
 	}
 
-	void OpenGlBufferBase::Bind(OpenGLUtils::Buffer::BufferType type)
+	void OpenGlBufferBase::Bind()
 	{
-		mType = type;
-		Bind();
+		glBindBuffer(EnumToGLEnum(mType), mBufferID);
 	}
 
 	inline bool OpenGlBufferBase::operator==(const OpenGlBufferBase& other) const noexcept
@@ -70,10 +67,5 @@ namespace Renderer::GL::Internal {
 	{
 		RenderAssert(mBufferID > 0, "Trying to generate an already generated buffer");
 		glGenBuffers(1, &mBufferID);
-	}
-
-	void OpenGlBufferBase::Bind()
-	{
-		glBindBuffer(EnumToGLEnum(mType), mBufferID);
 	}
 }

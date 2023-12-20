@@ -96,8 +96,45 @@ namespace OpenGLUtils {
 			STREAM_READ = GL_STREAM_READ,
 		};
 
+
+		/**
+		https://www.khronos.org/opengl/wiki/OpenGL_Type 
+		C Type	Bitdepth		Description											Common Enum
+		GLboolean	1+			A boolean value, either GL_TRUE or GL_FALSE	
+		GLbyte		8			Signed, 2's complement binary integer				GL_BYTE
+		GLubyte		8			Unsigned binary integer								GL_UNSIGNED_BYTE
+		GLshort		16			Signed, 2's complement binary integer				GL_SHORT
+		GLushort	16			Unsigned binary integer								GL_UNSIGNED_SHORT
+		GLint		32			Signed, 2's complement binary integer				GL_INT
+		GLuint		32			Unsigned binary integer								GL_UNSIGNED_INT
+		GLfixed		32			Signed, 2's complement 16.16 integer				GL_FIXED
+		GLint64		64			Signed, 2's complement binary integer	
+		GLuint64	64			Unsigned binary integer	
+		GLsizei		32			A non-negative binary integer, for sizes.	
+		GLenum		32			An OpenGL enumerator value	
+		GLintptr	ptrbits?1	Signed, 2's complement binary integer	
+		GLsizeiptr	ptrbits?1	Non-negative binary integer size, for memory offsets and ranges	
+		GLsync		ptrbits?1	Sync Object handle	
+		GLbitfield	32			A bitfield value	
+		GLhalf		16			An IEEE-754 floating-point value					GL_HALF_FLOAT
+		GLfloat		32			An IEEE-754 floating-point value					GL_FLOAT
+		GLclampf	32			An IEEE-754 floating-point value, clamped to the range [0,1]	
+		GLdouble	64			An IEEE-754 floating-point value					GL_DOUBLE
+		GLclampd	64			An IEEE-754 floating-point value, clamped to the range [0,1]	
+		**/
+
+		enum class GLType : uint32 {
+			BYTE = GL_BYTE,
+			UNSIGNED_BYTE = GL_UNSIGNED_BYTE,
+			SHORT = GL_SHORT,
+			UNSIGNED_SHORT = GL_UNSIGNED_SHORT,
+			INT = GL_INT,
+			UNSIGNED_INT = GL_UNSIGNED_INT,
+			FLOAT = GL_FLOAT
+		};
+
 		template<class T>
-		constexpr uint32 EnumToGLEnum(T t) { return GetEnumValue(t); }
+		constexpr uint32 EnumToGLEnum(T&& t) { return GetEnumValue(t); }
 
 	}
 

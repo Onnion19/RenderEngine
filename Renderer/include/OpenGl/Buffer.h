@@ -8,7 +8,7 @@ namespace Renderer::GL {
 		class OpenGlBufferBase {
 		public:
 			// Generates a new buffer using glGenBuffers
-			OpenGlBufferBase();
+			OpenGlBufferBase() = default;
 
 			/*
 			* Generates a new buffer using glGenBuffers and binds it
@@ -38,14 +38,12 @@ namespace Renderer::GL {
 
 			/*
 			* Binds the buffer object.
-			* @param Buffer type to bind
 			*/
-			void Bind(OpenGLUtils::Buffer::BufferType type);
+			void Bind();
 
 			inline bool operator==(const OpenGlBufferBase& other)const noexcept;
 		private:
 			void GenerateBuffer();
-			void Bind();
 
 		protected:
 			GLBufferId mBufferID;
@@ -62,6 +60,7 @@ namespace Renderer::GL {
 		OpenGlBuffer(OpenGLUtils::Buffer::BufferType type) : Internal::OpenGlBufferBase(type) {}
 
 		void SendDataGPU(OpenGLUtils::Buffer::BufferUsage usage) {
+			Bind();
 			const auto& container = this->GetContainer();
 			const auto& containerByteSize = container.size() * sizeof(containerType);
 			const auto& GlBufferType = EnumToGLEnum(mType);
@@ -92,11 +91,10 @@ namespace Renderer::GL {
 			const auto& begin = range.begin();
 			const auto& end = range.end();
 			auto& container = this->GetContainer();
+			// back inserter only works with lineal containers such as vector.
 			auto iter = std::back_inserter(container);
-			std::transform(begin, end, iter, [](auto value) mutable {
-				containerType tuple{};
-				std::get<decltype(value)>(tuple) = value;
-				return tuple;
+			std::transform(begin, end, iter, [](auto value) mutable -> containerType {
+				return containerType{ value };
 			});
 
 			const auto& dropSize = container.size() - range.size();
