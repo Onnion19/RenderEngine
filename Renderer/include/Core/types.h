@@ -109,6 +109,8 @@ namespace TupleHelper {
 		static constexpr std::size_t value = 1 + Index<T, std::tuple<Types...>>::value;
 	};
 }
+
+
 /*******************************
 		CUSTOM TYPES
 *******************************/

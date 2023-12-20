@@ -41,7 +41,7 @@ TEST(Queue, Dequeue)
 
 	for (int i = 0; i < size; i++)
 	{
-		[[maybe_unusued]] auto t = myQueue.SafeDequeue();
+		[[maybe_unused]] auto t = myQueue.SafeDequeue();
 		EXPECT_EQ(myQueue.GetSize(), size - i - 1);
 	}
 }

@@ -50,6 +50,7 @@ namespace Renderer::GL {
 			const bool normalized;
 
 			static constexpr auto tupleIndex = TupleHelper::Index< AttributeType, BufferType>::value;
+			// not sure about this stride. This is true for tuples with multiple types, but single ones...
 			static constexpr auto stride = sizeof(BufferType);
 			static constexpr auto offset = Internal::AttributeOffset<BufferType, tupleIndex>::value;
 		};
