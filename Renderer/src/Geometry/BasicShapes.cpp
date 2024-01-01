@@ -33,5 +33,12 @@ namespace Renderer::Geometry {
 		return vec2{ botRight.x - topLeft.x, topLeft.y - botRight.y } / 2.f;
 	}
 
+	std::array<Point2D, 4> Rectangle::GetCorners() const
+	{
+		const vec2 topRight{ botRight.x, topLeft.y };
+		const vec2 botLeft{ topLeft.x, botRight.y };
+		return { topLeft, topRight , botRight, botLeft};
+	}
+
 }
 

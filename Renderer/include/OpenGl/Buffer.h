@@ -2,6 +2,8 @@
 #include "OpenGl/OpenGLUtils.h"
 #include "Structures/RawBuffer.h"
 #include <algorithm>
+#include <type_traits>
+struct Test { float x, y; };
 namespace Renderer::GL {
 
 	namespace Internal {
@@ -29,7 +31,7 @@ namespace Renderer::GL {
 			OpenGlBufferBase& operator=(OpenGlBufferBase&& o) noexcept;
 
 			// Destroys the buffer using: glDeleteBuffers
-			~OpenGlBufferBase() noexcept;
+			virtual ~OpenGlBufferBase() noexcept;
 
 			/*
 			* Gets the GLuint of the buffer
@@ -41,65 +43,120 @@ namespace Renderer::GL {
 			*/
 			void Bind();
 
+			/*
+			* Unbinds any vbo object
+			*/
+			void Unbind();
+
 			inline bool operator==(const OpenGlBufferBase& other)const noexcept;
 		private:
 			void GenerateBuffer();
 
 		protected:
-			GLBufferId mBufferID;
+			GLBufferId mBufferID = 0;
 			OpenGLUtils::Buffer::BufferType mType;
 		};
 	}
 
 	template<typename ... T>
 	class OpenGlBuffer : public Internal::OpenGlBufferBase, public Renderer::MultiTypeBuffer<T...> {
-		using containerType = Renderer::MultiTypeBuffer<T...>::bufferTy;
+		using containerType = typename Renderer::MultiTypeBuffer<T...>::bufferTy;
 	public:
 
 		OpenGlBuffer() = default;
 		OpenGlBuffer(OpenGLUtils::Buffer::BufferType type) : Internal::OpenGlBufferBase(type) {}
 
 		void SendDataGPU(OpenGLUtils::Buffer::BufferUsage usage) {
-			Bind();
+		
 			const auto& container = this->GetContainer();
 			const auto& containerByteSize = container.size() * sizeof(containerType);
 			const auto& GlBufferType = EnumToGLEnum(mType);
 			const auto& GlBufferUsage = EnumToGLEnum(usage);
+			Bind();
 			//Send all the buffer chunk to the GPU :D 
 			glBufferData(GlBufferType, containerByteSize, container.data(), GlBufferUsage);
+			Unbind();
 		}
 
 		/*
-		* Inserting helper where it receives a range of type T which is just one of the
-		* types of the tuple inside MultiTypeBuffer.
-		*
-		* This function will insert as many tuples as needed and only modify the value
-		* of the same type as the input range
-		*
-		* Example:
-		*	MultiTypeBuffer container type = tuple<int,float, string>
-		*	input T range = { 3.f, 2.f, 4.f}
-		*
-		*	result of the inserting:
-		*		MultiTypeBuffer container = [(0, 3.f, "") , (0, 2.f, ""), (0, 4.f, "")]
-		*
+		*  Insert a tuple based range to the buffer.
+		*	If buffer is type <int, float, char>
+		* the range to insert must be type of: std::tuple<int, float, char>.
 		*  @return a view of the new inserted elements
 		*/
-		template<class T> //TODO: Add concept to use this function when T is not a tuple vector
-		auto Insert(const T& range)
+		template<class RangeTy>
+			requires std::is_same_v<typename RangeTy::value_type, containerType>
+		auto Insert(RangeTy&& range)
 		{
-			const auto& begin = range.begin();
-			const auto& end = range.end();
 			auto& container = this->GetContainer();
-			// back inserter only works with lineal containers such as vector.
-			auto iter = std::back_inserter(container);
-			std::transform(begin, end, iter, [](auto value) mutable -> containerType {
-				return containerType{ value };
-			});
+			container.append_range(range);
+			return InsertResult_internal(range);
+		}
 
-			const auto& dropSize = container.size() - range.size();
+		// Version for a single element tuple (std::tuple<int>) allows to send a range of <int> instead
+		template<class RangeTy>
+			//requires std::is_constructible_v<containerType, RangeTy::value_type>
+		auto Insert(RangeTy&& range)
+		{
+			auto& container = this->GetContainer();
+			for (const auto& element : range)
+			{
+				container.emplace_back(element);
+			}
+			return InsertResult_internal(range);
+		}
+
+		auto size() const { return this->GetContainer().size(); }
+
+	private:
+		template<class Range>
+		auto InsertResult_internal(Range&& r)
+		{
+			auto& container = this->GetContainer();
+			const auto& dropSize = container.size() - r.size();
 			return std::ranges::drop_view(container, dropSize);
 		}
 	};
+
+	class IndexBuffer : public Internal::OpenGlBufferBase {
+	public:
+		using Type = uint32;
+		using container = std::vector<Type>;
+		using iter = typename container::iterator;
+		using const_iter = typename container::const_iterator;
+		using const_ref =typename  container::const_reference;
+
+
+		IndexBuffer() noexcept;
+		~IndexBuffer();
+
+		void SendDataGPU(OpenGLUtils::Buffer::BufferUsage usage);
+
+		void AddIndex(uint32 indice);
+		template<typename Range>
+		void AddIndices(Range&& range);
+
+		void RemoveIndexAt(std::size_t position);
+		void RemoveIndexAt(iter it);
+		void RemoveIndicesAt(iter begin, iter end);
+
+		iter begin();
+		const_iter begin() const;
+
+		iter end();
+		const_iter end() const;
+
+		std::size_t size() const noexcept;
+		bool empty() const noexcept;
+
+	private:
+		std::vector<uint32> buffer;
+	};
+
+	template<typename Range>
+	inline void IndexBuffer::AddIndices(Range&& range)
+	{
+		buffer.append_range(range);
+	}
 
 }

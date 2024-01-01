@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 #include "OpenGl/Buffer.h"
-#include "Context/GLFWContext.h"
 
 namespace Renderer::GL::Test {
 
@@ -61,6 +60,46 @@ namespace Renderer::GL::Test {
 			EXPECT_NE(VerticeList[0], v);
 			EXPECT_EQ(VerticeList[0], v2);
 		}
+	}
+
+
+
+	TEST(OpenGLBuffer, Insert)
+	{
+		struct Foo {
+			int x; char c;
+			bool operator==(const Foo& other)const { return x == other.x && c == other.c; }
+		};
+		OpenGlBuffer<Foo> buffer{ OpenGLUtils::Buffer::BufferType::ARRAY };
+		auto data = std::vector<Foo>{ {1, 'a'}, {2, 'b'}, {3, 'c'} };
+		auto instertedElements = buffer.Insert(data);
+
+		int i = 0;
+		for (const auto& element : instertedElements)
+		{
+			EXPECT_EQ(data[i], std::get<Foo>(element));
+			i++;
+		}
+
+		EXPECT_EQ(data.size(), buffer.size());
+
+	}
+
+	TEST(OpenGLBuffer, InsertMultiType)
+	{
+		OpenGlBuffer<int, float> buffer{ OpenGLUtils::Buffer::BufferType::ARRAY };
+		auto data = std::vector<std::tuple<int, float>>{ {1, 1.f}, {2, 2.f}, {3, 3.f} };
+		auto instertedElements = buffer.Insert(data);
+
+		int i = 0;
+		for (const auto& element : instertedElements)
+		{
+			EXPECT_EQ(data[i], element);
+			i++;
+		}
+
+		EXPECT_EQ(data.size(), buffer.size());
+
 	}
 
 

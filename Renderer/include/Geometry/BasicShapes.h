@@ -10,6 +10,7 @@ namespace Core {
 
 namespace Renderer::Geometry
 {
+	struct Point2Dc { float x; float y; };
 	using Point2D = vec2;
 
 	struct Direction {
@@ -40,6 +41,7 @@ namespace Renderer::Geometry
 		Point2D botRight{};
 		Point2D GetCenter()const;
 		vec2 GetSizeFromCenter() const;
+		std::array<Point2D, 4> GetCorners() const;
 	};
 
 }

@@ -56,7 +56,9 @@ namespace Renderer::GL {
 		};
 	public:
 		explicit VertexAtributeObject();
+		~VertexAtributeObject();
 		void Bind();
+		void Unbind();
 		void Enable(uint8 AttributeId);
 		void Disable(uint8 AttributeId);
 		template<typename T>

@@ -8,9 +8,19 @@ Renderer::GL::VertexAtributeObject::VertexAtributeObject()
 	glGenVertexArrays(1, &id);
 }
 
+Renderer::GL::VertexAtributeObject::~VertexAtributeObject()
+{
+	glDeleteVertexArrays(1, &id);
+}
+
 void Renderer::GL::VertexAtributeObject::Bind()
 {
 	glBindVertexArray(id);
+}
+
+void Renderer::GL::VertexAtributeObject::Unbind()
+{
+	glBindVertexArray(0);
 }
 
 
