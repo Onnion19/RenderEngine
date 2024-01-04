@@ -13,14 +13,14 @@ namespace Renderer::GL {
 	class BasicQuad {
 	public: 
 		BasicQuad(const ::Core::Transform2D& transform, const Renderer::Type::RawColor& color = Renderer::Type::WHITE);
-		void SetPosition(const ::Core::Transform2D& transform);
+		void SetPosition(const ::Core::Transform2D& transform, const Renderer::Type::RawColor&);
 		void Draw();
 
 	private: 
 		void InitializeVAO();
 	private: 
 		Geometry::Rectangle rect;
-		OpenGlBuffer < Geometry::Point2D> vbo;
+		OpenGlBuffer < Geometry::Point2D, Renderer::Type::RawColor> vbo;
 		VertexAtributeObject vao;
 		bool dirty = true;
 

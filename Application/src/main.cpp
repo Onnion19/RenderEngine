@@ -91,8 +91,11 @@ int main()
 
 
 
-	//Core::Transform2D transform{ {0.5f,0.5f} , {0.2f, 0.2f}, 0.f };
-	//Renderer::GL::BasicQuad quad(transform);
+	Core::Transform2D transform{ {0.5f,0.5f} , {0.2f, 0.2f}, 0.f };
+	Renderer::GL::BasicQuad quad(transform, Renderer::Type::BLUE);
+
+	Core::Transform2D transform2{ {0.f,0.f} , {0.2f, 0.2f}, 0.f };
+	Renderer::GL::BasicQuad quad2(transform2);
 
 	Renderer::GL::Shader vs(std::string_view(vertexShaderSource), OpenGLUtils::Shader::Type::VERTEX);
 	Renderer::GL::Shader fs(std::string_view(fragmentShaderSource), OpenGLUtils::Shader::Type::FRAGMENT);
@@ -121,11 +124,9 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// draw points 0-3 from the currently bound VAO with current in-use shader
-		//glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		quad.Draw();
+		quad2.Draw();
 		batch.Draw();
-		//quad.Draw();
 		// update other events like input handling
 
 		glfwSwapBuffers(window.get());
