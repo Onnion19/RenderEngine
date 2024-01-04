@@ -31,6 +31,9 @@ namespace Renderer::GL {
 		using VertexData = std::tuple<VBOTypes...>;
 		QuadBatcher() :vao(), vbo(OpenGLUtils::Buffer::BufferType::ARRAY), ibo(){
 			InitializeVAO();
+			vbo.Unbind();
+			ibo.Unbind();
+			vao.Unbind();
 		}
 
 		// this should take a VBOType data and index should be auto computed
@@ -51,7 +54,9 @@ namespace Renderer::GL {
 		}
 
 		void SendQuadDataToGPU() {
+			vao.Bind();
 			vbo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::STATIC_DRAW);
+			vao.Unbind();
 		}
 
 		void RemoveQuad(uint32 index) {
@@ -63,15 +68,12 @@ namespace Renderer::GL {
 		void Draw()
 		{
 			HandleDirtyFlag();
-			vbo.Bind();
-			vao.Bind();
 			ibo.Bind();
-
+			vao.Bind();
+			vbo.Bind();
 			const auto gltype = EnumToGLEnum(OpenGLUtils::Buffer::GLType::UNSIGNED_INT);
 			glDrawElements(GL_TRIANGLES, static_cast<uint32>(ibo.size()), gltype, nullptr);
-			vbo.Unbind();
-			ibo.Unbind();
-			vao.Unbind();
+
 		}
 	private:
 		void InitializeVAO() {
@@ -83,6 +85,7 @@ namespace Renderer::GL {
 			vao.EnableAndDefineAttributePointer(position);
 			vao.EnableAndDefineAttributePointer(color);
 			vbo.Unbind();
+			vao.Unbind();
 		}
 		void HandleDirtyFlag() {
 			if (!dirty) return;

@@ -70,8 +70,6 @@ namespace Renderer::GL {
 	template<typename T>
 	void Renderer::GL::VertexAtributeObject::EnableAndDefineAttributePointer(T&& properties)
 	{
-		//Bind();
-
 		auto offset = (properties.offset == 0) ? sizeof(float) * 4 : 0;
 		glVertexAttribPointer(
 			properties.attributeIndex,
@@ -81,6 +79,5 @@ namespace Renderer::GL {
 			properties.stride,
 			reinterpret_cast<const void*>(offset));
 		Enable(properties.attributeIndex);
-		//Unbind();
 	}
 }
