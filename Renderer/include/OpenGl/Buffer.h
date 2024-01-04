@@ -70,8 +70,8 @@ namespace Renderer::GL {
 		
 			const auto& container = this->GetContainer();
 			const auto& containerByteSize = container.size() * sizeof(containerType);
-			const auto& GlBufferType = EnumToGLEnum(mType);
-			const auto& GlBufferUsage = EnumToGLEnum(usage);
+			const auto& GlBufferType = OpenGLUtils::EnumToGLEnum(mType);
+			const auto& GlBufferUsage = OpenGLUtils::EnumToGLEnum(usage);
 			Bind();
 			//Send all the buffer chunk to the GPU :D 
 			glBufferData(GlBufferType, containerByteSize, container.data(), GlBufferUsage);

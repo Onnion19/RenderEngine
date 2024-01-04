@@ -40,13 +40,13 @@ namespace Renderer::GL {
 
 		void OpenGlBufferBase::Bind()
 		{
-			glBindBuffer(EnumToGLEnum(mType), mBufferID);
+			glBindBuffer(OpenGLUtils::EnumToGLEnum(mType), mBufferID);
 		}
 
 		void OpenGlBufferBase::Unbind()
 		{
 			RenderAssert(mBufferID > 0, "Invalid buffer id");
-			glBindBuffer(EnumToGLEnum(mType), 0);
+			glBindBuffer(OpenGLUtils::EnumToGLEnum(mType), 0);
 		}
 
 		inline bool OpenGlBufferBase::operator==(const OpenGlBufferBase& other) const noexcept
@@ -85,8 +85,8 @@ namespace Renderer::GL {
 	void IndexBuffer::SendDataGPU(OpenGLUtils::Buffer::BufferUsage usage)
 	{
 		const auto& containerByteSize = buffer.size() * sizeof(Type);
-		const auto& GlBufferType = EnumToGLEnum(mType);
-		const auto& GlBufferUsage = EnumToGLEnum(usage);
+		const auto& GlBufferType = OpenGLUtils::EnumToGLEnum(mType);
+		const auto& GlBufferUsage = OpenGLUtils::EnumToGLEnum(usage);
 		//Send all the buffer chunk to the GPU :D 
 		Bind();
 		glBufferData(GlBufferType, containerByteSize, buffer.data(), GlBufferUsage);

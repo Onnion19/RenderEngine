@@ -74,7 +74,7 @@ namespace Renderer::GL {
 		glVertexAttribPointer(
 			properties.attributeIndex,
 			properties.attributeSize,
-			OpenGLUtils::Buffer::EnumToGLEnum(properties.elementType),
+			OpenGLUtils::EnumToGLEnum(properties.elementType),
 			properties.normalized,
 			properties.stride,
 			reinterpret_cast<const void*>(offset));

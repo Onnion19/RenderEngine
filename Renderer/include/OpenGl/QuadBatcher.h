@@ -71,7 +71,7 @@ namespace Renderer::GL {
 			ibo.Bind();
 			vao.Bind();
 			vbo.Bind();
-			const auto gltype = EnumToGLEnum(OpenGLUtils::Buffer::GLType::UNSIGNED_INT);
+			const auto gltype = OpenGLUtils::EnumToGLEnum(OpenGLUtils::Buffer::GLType::UNSIGNED_INT);
 			glDrawElements(GL_TRIANGLES, static_cast<uint32>(ibo.size()), gltype, nullptr);
 
 		}

@@ -24,6 +24,7 @@ typedef std::uint64_t uint64;
 
 /****		OPENGL		****/
 typedef uint32 GLBufferId;
+typedef uint32 GLShaderId;
 typedef uint32 GlRenderMode;
 
 /*******************************
@@ -37,12 +38,6 @@ auto GetEnumValue(const T& t)
 	using type = std::underlying_type_t<T>;
 	return static_cast<type>(t);
 }
-
-/*******************************
-		CHAR TYPES
-*******************************/
-
-typedef std::string string;
 
 
 /*******************************

@@ -29,7 +29,7 @@ namespace Renderer::GLFW
 		/*
 			Creates a new glfw Window, asigns as a current Context and returns an observer to it.
 		*/
-		WindowObserver CreateNewWindow(int16 Widht, int16 Height, string name);
+		WindowObserver CreateNewWindow(int16 Widht, int16 Height, std::string name);
 
 		/*
 			Takes ownership of the Window provided and sets it as the current context.

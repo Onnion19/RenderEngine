@@ -24,7 +24,7 @@ namespace Renderer::GLFW {
 		glfwTerminate();
 	}
 
-	GLFWContext::WindowObserver GLFWContext::CreateNewWindow(int16 Widht, int16 Height, string name)
+	GLFWContext::WindowObserver GLFWContext::CreateNewWindow(int16 Widht, int16 Height, std::string name)
 	{
 		mContextWindow = Window(glfwCreateWindow(Widht, Height, name.c_str(), nullptr, {}));
 		INTERNAL_UpdateWindowContext();

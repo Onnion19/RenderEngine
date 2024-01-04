@@ -62,7 +62,7 @@ namespace Renderer::Input {
 	};
 
 #if RENDERER_DEBUG
-	string DebugKeyCodeText(KeyboardCode code);
+	std::string DebugKeyCodeText(KeyboardCode code);
 #else
 	constexpr char DebugKeyCodeText(KeyboardCode) { return ' '; };
 #endif

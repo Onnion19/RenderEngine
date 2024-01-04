@@ -132,10 +132,16 @@ namespace OpenGLUtils {
 			UNSIGNED_INT = GL_UNSIGNED_INT,
 			FLOAT = GL_FLOAT
 		};
-
-		template<class T>
-		constexpr uint32 EnumToGLEnum(T&& t) { return GetEnumValue(t); }
-
 	}
 
+	namespace Shader {
+		enum class Type : uint32{
+			VERTEX = GL_VERTEX_SHADER,
+			FRAGMENT = GL_FRAGMENT_SHADER,
+			COMPUTE = GL_COMPUTE_SHADER
+		};
+	}
+
+	template<class T>
+	constexpr uint32 EnumToGLEnum(T&& t) { return GetEnumValue(t); }
 }

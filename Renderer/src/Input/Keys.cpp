@@ -3,9 +3,9 @@
 namespace Renderer::Input {
 
 #if RENDERER_DEBUG
-	string DebugKeyCodeText(KeyboardCode code)
+	std::string DebugKeyCodeText(KeyboardCode code)
 	{
-		string keyName = "";
+		std::string keyName = "";
 		BitMask mask = static_cast<BitMask>(code);
 		int bit = -1;
 		while (mask > 0) {
