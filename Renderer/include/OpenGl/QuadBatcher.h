@@ -25,42 +25,41 @@ namespace Renderer::GL {
 	*/
 	template<typename ... VBOTypes>
 	class QuadBatcher {
+		static constexpr auto ActiveQuad = true;
+		static constexpr auto InactiveQuad = !ActiveQuad;
 	public:
 		using VertexData = std::tuple<VBOTypes...>;
-		QuadBatcher() : vbo(OpenGLUtils::Buffer::BufferType::ARRAY) {
+		QuadBatcher() :vao(), vbo(OpenGLUtils::Buffer::BufferType::ARRAY), ibo(){
 			InitializeVAO();
 		}
 
 		// this should take a VBOType data and index should be auto computed
 		template<typename QuadVertexDataRange = std::vector<VertexData>>
-		void AddQuad(QuadVertexDataRange&& data, bool updateGpu = false) {
+		uint32 AddQuad(QuadVertexDataRange&& data, bool updateGpu = false) {
 			assert(data.size() == 4);
+			const auto quadIndex = quadStatus.size();
+
 			vbo.Insert(data);
 			assert(vbo.size() % 4 == 0 && "Invalid ammount of vbo, not mutilple by 4");
-
-			const auto indices = ComputeNewQuadIndices();
-			ibo.AddIndices(indices);
+			quadStatus.push_back(ActiveQuad);
 			if (updateGpu)
 			{
 				SendQuadDataToGPU();
 			}
 			dirty = true;
+			return static_cast<uint32>(quadIndex);
 		}
 
 		void SendQuadDataToGPU() {
 			vbo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::STATIC_DRAW);
 		}
 
-
-
 		void RemoveQuad(uint32 index) {
-			auto offset = 6u * index;
-			assert(offset <= ibo.size() - 6 && "Trying to remove an invalid quad");
-			auto begin = ibo.begin() + offset;
-			auto end = begin + 6;
-			ibo.RemoveIndicesAt(begin, end);
+			if (index >= quadStatus.size()) return;
+			quadStatus[index] = InactiveQuad;
 			dirty = true;
 		}
+
 		void Draw()
 		{
 			HandleDirtyFlag();
@@ -70,40 +69,53 @@ namespace Renderer::GL {
 
 			const auto gltype = EnumToGLEnum(OpenGLUtils::Buffer::GLType::UNSIGNED_INT);
 			glDrawElements(GL_TRIANGLES, static_cast<uint32>(ibo.size()), gltype, nullptr);
-			//glDrawArrays(GL_TRIANGLES, 0, 3);
 			vbo.Unbind();
 			ibo.Unbind();
 			vao.Unbind();
 		}
 	private:
 		void InitializeVAO() {
-			vbo.Bind();
-			// This attributes probably needs to be updated by shader or something
 			vao.Bind();
-			Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Geometry::Point2D> properties{ 0 ,2, OpenGLUtils::Buffer::GLType::FLOAT, false };
-			vao.EnableAndDefineAttributePointer(properties);
+			// This attributes probably needs to be updated by shader or something
+			vbo.Bind();
+			Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Renderer::Geometry::Point2D> position{ 0 ,2, OpenGLUtils::Buffer::GLType::FLOAT, false };
+			Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Renderer::Type::RawColor> color{ 1,4, OpenGLUtils::Buffer::GLType::FLOAT, false };
+			vao.EnableAndDefineAttributePointer(position);
+			vao.EnableAndDefineAttributePointer(color);
+			vbo.Unbind();
 		}
 		void HandleDirtyFlag() {
 			if (!dirty) return;
-			ibo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::STATIC_DRAW);
+			BuildIbo();
+			ibo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::DYNAMIC_DRAW);
 			dirty = false;
 		}
 
-		auto ComputeNewQuadIndices() const
+		void BuildIbo() {
+			ibo.clear();
+			for (uint32 i = 0; i < quadStatus.size(); i++)
+			{
+				if (quadStatus[i] != ActiveQuad) continue;
+				const auto indices = ComputeQuadIndices(i);
+				ibo.AddIndices(indices);
+			}
+		}
+
+		auto ComputeQuadIndices(uint32 quadIndex) const
 		{
-			// Verify there are vertices ready
-			assert(vbo.size() >= 4);
-			const auto tl = static_cast<uint32>(vbo.size() - 4);
-			const auto tr = static_cast<uint32>(vbo.size() - 3);
-			const auto br = static_cast<uint32>(vbo.size() - 2);
-			const auto bl = static_cast<uint32>(vbo.size() - 1);
+			const auto offset = quadIndex * 4;
+			const auto tl = static_cast<uint32>(offset);
+			const auto tr = static_cast<uint32>(offset + 1);
+			const auto br = static_cast<uint32>(offset + 2);
+			const auto bl = static_cast<uint32>(offset + 3);
 
 			return std::array<uint32, 6>{ tl, tr, br, tl, br, bl};
 		}
 	private:
-		OpenGlBuffer<VBOTypes...> vbo;
 		VertexAtributeObject vao;
+		OpenGlBuffer<VBOTypes...> vbo;
 		IndexBuffer ibo;
+		std::vector<bool> quadStatus;
 		bool dirty = true;
 	};
 }

@@ -136,4 +136,8 @@ namespace Renderer::GL {
 	{
 		return buffer.empty();
 	}
+	void IndexBuffer::clear() noexcept
+	{
+		buffer.clear();
+	}
 }

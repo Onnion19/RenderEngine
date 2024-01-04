@@ -9,10 +9,29 @@
 #include "OpenGl/QuadBatcher.h"
 #include "OpenGl/Quad.h"
 #include "Type/Transform.h"
+#include "Type/Color.h"
 
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+
+const char* vertexShaderSource = "#version 330 core\n"
+"layout (location = 0) in vec3 aPos;\n"
+"layout (location = 1) in vec3 aColor;\n"
+"out vec3 o_color;\n"
+"void main()\n"
+"{\n"
+"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"   o_color = aColor;\n"
+"}\0";
+const char* fragmentShaderSource = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"in vec3 o_color;\n"
+"void main()\n"
+"{\n"
+"   FragColor = vec4(o_color, 1.0f);\n"
+"}\n\0";
+
 
 bool close = false;
 int main()
@@ -49,38 +68,83 @@ int main()
 		// Dynamic vs Static meshes
 		// Animations? 
 
-	std::vector<Renderer::Geometry::Point2D> points = {
-		{-0.f ,0.5f},
-		{0.5, 0.5f},
-		{0.5f, -0.f},
-		{-0.f, -0.f}
-	};
 
-	std::vector<Renderer::Geometry::Point2D> points2 = {
-	{-0.5f, 0.f},
-	{0.f, 0.f},
-	{0.f, -0.3f},
-	{-0.5f, -0.3f},
-	};
 
-	////Vertex buffer object
+
+	std::vector<std::tuple<Renderer::Geometry::Point2D, Renderer::Type::RawColor>> points = {
+	{{-0.f ,0.5f}, Renderer::Type::RED},
+	{{0.5, 0.5f}, Renderer::Type::RED },
+	{{0.5f, -0.f}, Renderer::Type::GREEN},
+	{{-0.f, -0.f}, Renderer::Type::BLUE} };
+
+	std::vector<std::tuple<Renderer::Geometry::Point2D, Renderer::Type::RawColor>> points2 = {
+		{{-0.5f, 0.f}, Renderer::Type::RED},
+		{{0.f, 0.f}, Renderer::Type::RED},
+		{{0.f, -0.3f}, Renderer::Type::RED},
+		{{-0.5f, -0.3f}, Renderer::Type::BLUE} };
+
+	//std::vector<Renderer::Geometry::Point2D>points = {
+	//{0.5, 0.5f},
+	//{-0.f ,0.5f},
+	//{0.5f, -0.f} };
+
+	//std::vector<std::tuple<Renderer::Geometry::Point2D>>points2 = {
+	//{{-0.5f, 0.f}},
+	//{{0.f, 0.f}},
+	//{{0.f, -0.3f}},
+	//{{-0.5f, -0.3f}} };
+
+	//////Vertex buffer object
 	//Renderer::GL::OpenGlBuffer<Renderer::Geometry::Point2D> vbo(OpenGLUtils::Buffer::BufferType::ARRAY);
 	//vbo.Insert(points);
 	//vbo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::STATIC_DRAW);
 
 	//Renderer::GL::VertexAtributeObject vao;
 	//vao.Bind();
-	//Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Renderer::Geometry::Point2D> properties{ 0 ,3, OpenGLUtils::Buffer::GLType::FLOAT, false };
+	//Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Renderer::Geometry::Point2D> properties{ 0 ,2, OpenGLUtils::Buffer::GLType::FLOAT, false };
 	//vao.EnableAndDefineAttributePointer(properties);
-	//vbo.Unbind();
-	//Vertex attribute object
-	//GLuint vao = 0;
-	//glGenVertexArrays(1, &vao);
-	//glBindVertexArray(vao);
-	//glEnableVertexAttribArray(0);
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-	Renderer::GL::QuadBatcher<Renderer::Geometry::Point2D> batch;
+	//float vertices[] = {
+	//	0.5f,  0.5f, 0.0f, 1.f, 0.f, 0.f, // top right + color
+	//	0.5f, -0.5f, 0.0f, 0.f, 1.f, 0.f, // bottom right
+	//   -0.5f, -0.5f, 0.0f, 1.f, 1.f, 0.f, // bottom left
+	//   -0.5f,  0.5f, 0.0f, 1.f, 0.f, 1.f // top left 
+	//};
+	//unsigned int indices[] = {  // note that we start from 0!
+	//	0, 1, 3,  // first Triangle
+	//	1, 2, 3   // second Triangle
+	//};
+	//unsigned int VBO, VAO, EBO;
+	//glGenVertexArrays(1, &VAO);
+	//glGenBuffers(1, &VBO);
+	//glGenBuffers(1, &EBO);
+	//// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+	//glBindVertexArray(VAO);
+
+	//glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	//glEnableVertexAttribArray(0);
+
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	//glEnableVertexAttribArray(1);
+
+	//// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
+	////glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	//// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+	//// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+	//glBindVertexArray(0);
+	
+
+	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Type::RawColor > batch;
 	batch.AddQuad(points);
 	batch.AddQuad(points2);
 	batch.SendQuadDataToGPU();
@@ -98,28 +162,12 @@ int main()
 	  // Shader class 
 	  // FileSystem
 
-	//Batching?
-	const char* vertex_shader =
-		"#version 400\n"
-		"in vec2 vp;"
-		"void main() {"
-		"  gl_Position = vec4(vp, 1.0, 1.0);"
-		"}";
-
-	const char* fragment_shader =
-		"#version 400\n"
-		"out vec4 frag_colour;"
-		"void main() {"
-		"  frag_colour = vec4(0.5, 0.0, 0.5, 1.0);"
-		"}";
-
-
 	//Render queue
 	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vs, 1, &vertex_shader, NULL);
+	glShaderSource(vs, 1, &vertexShaderSource, NULL);
 	glCompileShader(vs);
 	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fs, 1, &fragment_shader, NULL);
+	glShaderSource(fs, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fs);
 
 	GLuint shader_programme = glCreateProgram();
@@ -128,11 +176,11 @@ int main()
 	glLinkProgram(shader_programme);
 	glUseProgram(shader_programme);
 
-	auto lambda2 = [&](Renderer::Input::KeyInfo /*key*/) {
-		batch.RemoveQuad(0);
-	};
+	//auto lambda2 = [&](Renderer::Input::KeyInfo /*key*/) {
+	//	batch.RemoveQuad(0);
+	//	};
 
-	auto token2 = context.GetInputManager()->RegisterEvent(lambda2, Renderer::Input::KeyboardCode::F, Renderer::Input::ButtonStatus::UP);
+	//auto token2 = context.GetInputManager()->RegisterEvent(lambda2, Renderer::Input::KeyboardCode::F, Renderer::Input::ButtonStatus::UP);
 
 	while (!close)
 	{
@@ -145,7 +193,8 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// draw points 0-3 from the currently bound VAO with current in-use shader
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		batch.Draw();
 		//quad.Draw();
 		// update other events like input handling

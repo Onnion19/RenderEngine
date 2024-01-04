@@ -149,6 +149,8 @@ namespace Renderer::GL {
 		std::size_t size() const noexcept;
 		bool empty() const noexcept;
 
+		void clear() noexcept;
+
 	private:
 		std::vector<uint32> buffer;
 	};

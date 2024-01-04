@@ -22,7 +22,7 @@ namespace Renderer::GL {
 		template<class TupleTy, int i>
 		struct AttributeOffset {
 			static_assert(i > 0);
-			static constexpr unsigned value = AttributeOffsetRecurisve<TupleTy, i - 1>::value;
+			static constexpr uint64 value = AttributeOffsetRecurisve<TupleTy, i - 1>::value;
 		};
 
 		template<class TupleTy>
@@ -49,10 +49,10 @@ namespace Renderer::GL {
 			const OpenGLUtils::Buffer::GLType elementType;
 			const bool normalized;
 
-			static constexpr auto tupleIndex = TupleHelper::Index< AttributeType, BufferType>::value;
+			static constexpr auto tupleIndex = TupleHelper::Index<AttributeType, BufferType>::value;
 			// not sure about this stride. This is true for tuples with multiple types, but single ones...
 			static constexpr auto stride = sizeof(BufferType);
-			static constexpr auto offset = Internal::AttributeOffset<BufferType, tupleIndex>::value;
+			static constexpr auto offset = Internal::AttributeOffset<BufferType, tupleIndex>::value;			
 		};
 	public:
 		explicit VertexAtributeObject();
@@ -70,14 +70,17 @@ namespace Renderer::GL {
 	template<typename T>
 	void Renderer::GL::VertexAtributeObject::EnableAndDefineAttributePointer(T&& properties)
 	{
-		Bind();
-		Enable(properties.attributeIndex);
+		//Bind();
+
+		auto offset = (properties.offset == 0) ? sizeof(float) * 4 : 0;
 		glVertexAttribPointer(
 			properties.attributeIndex,
 			properties.attributeSize,
 			OpenGLUtils::Buffer::EnumToGLEnum(properties.elementType),
 			properties.normalized,
 			properties.stride,
-			reinterpret_cast<const void*>(properties.offset));
+			reinterpret_cast<const void*>(offset));
+		Enable(properties.attributeIndex);
+		//Unbind();
 	}
 }
