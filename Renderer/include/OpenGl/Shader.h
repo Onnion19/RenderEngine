@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Core/types.h"
+#include "Context/GLFWContext.h"
 #include "OpenGl/OpenGLUtils.h"
-#include "glad/glad.h"
 #include <string_view>
 #include <filesystem>
 #include <expected>

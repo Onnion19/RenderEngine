@@ -25,6 +25,7 @@ typedef std::uint64_t uint64;
 /****		OPENGL		****/
 typedef uint32 GLBufferId;
 typedef uint32 GLShaderId;
+typedef uint32 GlProgramId;
 typedef uint32 GlRenderMode;
 
 /*******************************

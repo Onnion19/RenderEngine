@@ -59,9 +59,16 @@ namespace Renderer::GL {
 			vao.Unbind();
 		}
 
-		void RemoveQuad(uint32 index) {
+		void HideQuad(uint32 index) {
 			if (index >= quadStatus.size()) return;
 			quadStatus[index] = InactiveQuad;
+			dirty = true;
+		}
+
+		void ShowQuad(uint32 index)
+		{
+			if (index >= quadStatus.size()) return;
+			quadStatus[index] = ActiveQuad;
 			dirty = true;
 		}
 
