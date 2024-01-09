@@ -18,8 +18,8 @@ namespace Renderer::Geometry {
 	{}
 
 	Rectangle::Rectangle(const::Core::Transform& transform) noexcept
-		: topLeft(transform.position.x - transform.size.x, transform.position.y + transform.size.y)
-		, botRight(transform.position.x + transform.size.x, transform.position.y - transform.size.y)
+		: topLeft(transform.position.x - transform.size.x/2.f, transform.position.y + transform.size.y/2.f)
+		, botRight(transform.position.x + transform.size.x/2.f, transform.position.y - transform.size.y/2.f)
 	{}
 
 	Point2D Rectangle::GetCenter() const

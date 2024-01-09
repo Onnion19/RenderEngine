@@ -1,5 +1,5 @@
 #pragma once
-
+#pragma warning(disable : 4201)
 #include "Context/GLFWContext.h"
 #include "OpenGl/Shader.h"
 
@@ -29,13 +29,10 @@ namespace Renderer::GL {
 		void LinkProgram()const;
 		void operator()()const;
 
-		// Uniforms
-		template<Uniform1 Ty>
-		void SetUniform1(std::string_view name, Ty&& value) const
-		{
-			glUniform1f(glGetUniformLocation(id, name.data()), value);
-		}
 
+		void SetUniform1(std::string_view name, float value) const;
+
+		void SetUniformMatrix4(std::string_view name, const mat4& value);
 	private:
 		GlProgramId id;
 	};

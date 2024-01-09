@@ -5,24 +5,28 @@
 #include "Window/Window.h"
 #include "Input/InputManager.h"
 #include "OpenGl/Buffer.h"
-#include "OpenGl/VertexAttributeObject.h"
+#include "OpenGl/Camera.h"
 #include "OpenGl/QuadBatcher.h"
-#include "OpenGl/Program.h"
 #include "OpenGl/Quad.h"
+#include "OpenGl/Program.h"
+#include "OpenGl/VertexAttributeObject.h"
 #include "Type/Transform.h"
 #include "Type/Color.h"
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 
 const char* vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
 "layout (location = 1) in vec3 aColor;\n"
 "out vec3 o_color;\n"
+"uniform mat4 model;\n"
+"uniform mat4 view;\n"
+"uniform mat4 projection;\n"
 "void main()\n"
 "{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
 "   o_color = aColor;\n"
 "}\0";
 const char* fragmentShaderSource = "#version 330 core\n"
@@ -58,17 +62,36 @@ int main()
 
 	auto token = context.GetInputManager()->RegisterEvent(lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::DOWN);
 	context.GetInputManager()->RegisterEvent(token, lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::UP);
+	Renderer::GL::OrthoCamera camera{ 500.f,500.f,0.1f,100.f };
+	camera.Translate(vec3{ 0.f,0.f,-10.f});
 
-	Renderer::GL::BasicQuad quad{ Core::Transform{ vec3{}, vec3{}, vec3{0.25f} } };
-	Renderer::GL::BasicQuad quad2{ Core::Transform{ vec3{-0.25}, vec3{}, vec3{0.25f} } , Renderer::Type::BLUE };
-	Renderer::GL::BasicQuad quad3{ Core::Transform{ vec3{0.25f}, vec3{}, vec3{0.15f} } , Renderer::Type::RED };
+	constexpr auto cameraMovement = 10.f;
+	auto t1 = context.GetInputManager()->RegisterEvent([&](Renderer::Input::KeyInfo) {
+		camera.Translate(vec3(cameraMovement, 0.f, 0.f));
+		}, Renderer::Input::KeyboardCode::W, Renderer::Input::ButtonStatus::DOWN);
+
+	auto t2 = context.GetInputManager()->RegisterEvent([&](Renderer::Input::KeyInfo) {
+		camera.Translate(vec3(-cameraMovement, 0.f, 0.f));
+		}, Renderer::Input::KeyboardCode::S, Renderer::Input::ButtonStatus::DOWN);
+
+	auto t3 = context.GetInputManager()->RegisterEvent([&](Renderer::Input::KeyInfo) {
+		camera.Translate(vec3(0.f, cameraMovement, 0.f));
+		}, Renderer::Input::KeyboardCode::A, Renderer::Input::ButtonStatus::DOWN);
+
+	auto t4 = context.GetInputManager()->RegisterEvent([&](Renderer::Input::KeyInfo) {
+		camera.Translate(vec3(0.f, -cameraMovement, 0.f));
+		}, Renderer::Input::KeyboardCode::D, Renderer::Input::ButtonStatus::DOWN);
+
+
+
+	Renderer::GL::BasicQuad quad{ Core::Transform{ vec3{0.f}, vec3{}, vec3{30.f} }, Renderer::Type::BLUE };
+	Renderer::GL::BasicQuad quad2{ Core::Transform{ vec3{20.f,20.f, -1.f}, vec3{}, vec3{30.f} } };
 
 	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Type::RawColor > batch;
 	batch.AddQuad(quad.GetVBOData());
 	batch.AddQuad(quad2.GetVBOData());
 	batch.SendQuadDataToGPU();
 	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Type::RawColor > batch2;
-	batch2.AddQuad(quad3.GetVBOData());
 	batch2.SendQuadDataToGPU();
 
 	Renderer::GL::Shader vs(std::string_view(vertexShaderSource), OpenGLUtils::Shader::Type::VERTEX);
@@ -76,6 +99,7 @@ int main()
 	Renderer::GL::Program program{ vs, fs };
 	program.LinkProgram();
 	program();
+
 
 	auto lambda2 = [&](Renderer::Input::KeyInfo /*key*/) {
 		static bool a = true;
@@ -97,6 +121,20 @@ int main()
 		glfwPollEvents();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		program.SetUniformMatrix4("model", glm::identity<mat4>());
+		auto [view, projection] = camera.GetCameraAndProjectionMatrices();
+		program.SetUniformMatrix4("view", view);
+		program.SetUniformMatrix4("projection", projection);
+
+		std::cout << "\n\nView Matrix\n";
+		for (int i = 0; i < 4; i++)
+		{
+			for (int j = 0; j < 4; j++)
+			{
+				std::cout << view[i][j] << "\t";
+			}
+			std::cout << std::endl;
+		}
 
 		batch2.Draw();
 		batch.Draw();

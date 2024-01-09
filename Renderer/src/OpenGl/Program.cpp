@@ -1,5 +1,5 @@
 #include "Opengl/Program.h"
-
+#include <gtc/type_ptr.hpp>
 Renderer::GL::Program::Program()
 {
 	id = glCreateProgram();
@@ -34,4 +34,16 @@ void Renderer::GL::Program::LinkProgram()const
 void Renderer::GL::Program::operator()()const
 {
 	glUseProgram(id);
+}
+
+void Renderer::GL::Program::SetUniform1(std::string_view name, float value) const
+{
+	glUniform1f(glGetUniformLocation(id, name.data()), value);
+}
+
+void Renderer::GL::Program::SetUniformMatrix4(std::string_view name, const mat4& value)
+{
+	auto uniformPos = glGetUniformLocation(id, name.data());
+	RenderAssert(uniformPos > -1, "Trying to sent an invalid uniform for shader");
+	glUniformMatrix4fv(uniformPos, 1, false, glm::value_ptr(value));
 }
