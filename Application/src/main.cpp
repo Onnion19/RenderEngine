@@ -38,6 +38,46 @@ const char* fragmentShaderSource = "#version 330 core\n"
 "}\n\0";
 
 
+
+struct CameraMovement {
+
+	CameraMovement(auto& camera, Renderer::Input::InputManager& manager)
+	{
+		constexpr auto cameraMovement = 10.f;
+		aliveToken = manager.RegisterEvent([&](Renderer::Input::KeyInfo) {
+			camera.Translate(vec3(cameraMovement, 0.f, 0.f));
+			}, Renderer::Input::KeyboardCode::W, Renderer::Input::ButtonStatus::DOWN);
+
+		manager.RegisterEvent(aliveToken, [&](Renderer::Input::KeyInfo) {
+			camera.Translate(vec3(-cameraMovement, 0.f, 0.f));
+			}, Renderer::Input::KeyboardCode::S, Renderer::Input::ButtonStatus::DOWN);
+
+		manager.RegisterEvent(aliveToken,[&](Renderer::Input::KeyInfo) {
+			camera.Translate(vec3(0.f, cameraMovement, 0.f));
+			}, Renderer::Input::KeyboardCode::A, Renderer::Input::ButtonStatus::DOWN);
+
+		manager.RegisterEvent(aliveToken, [&](Renderer::Input::KeyInfo) {
+			camera.Translate(vec3(0.f, -cameraMovement, 0.f));
+			}, Renderer::Input::KeyboardCode::D, Renderer::Input::ButtonStatus::DOWN);
+	}
+
+private: 
+	Renderer::Core::TokenOwner aliveToken;
+};
+
+
+Renderer::GL::Program CreateDefaultProgram(const auto& camera)
+{
+
+	Renderer::GL::Shader vs(std::string_view(vertexShaderSource), OpenGLUtils::Shader::Type::VERTEX);
+	Renderer::GL::Shader fs(std::string_view(fragmentShaderSource), OpenGLUtils::Shader::Type::FRAGMENT);
+	Renderer::GL::Program program{ vs, fs };
+	program.SetUniformMatrix4("model", glm::identity<mat4>());
+	program.SetUniformMatrix4("projection", camera.GetProjectionMatrix());
+
+	return program;
+}
+
 bool close = false;
 int main()
 {
@@ -48,57 +88,28 @@ int main()
 	// glfw window creation
 	// --------------------
 	auto window = context.CreateNewWindow(SCR_WIDTH, SCR_HEIGHT, "Renderer");
-	if (!window.Valid())
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		return -1;
-	}
-	auto lambda = [](Renderer::Input::KeyInfo key) {
+	RenderAssert(window.Valid(), "Failed to create GLFW window");
 
-		std::string status = (key.status == Renderer::Input::ButtonStatus::DOWN) ? "DOWN" : "UP";
 
-		std::cout << status << " Key: " << Renderer::Input::DebugKeyCodeText(key.code) << " Modifier: " << Renderer::Input::DebugKeyCodeText(key.modifier) << std::endl << std::endl;
-		};
-
-	auto token = context.GetInputManager()->RegisterEvent(lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::DOWN);
-	context.GetInputManager()->RegisterEvent(token, lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::UP);
+	
 	Renderer::GL::OrthoCamera camera{ SCR_WIDTH,SCR_HEIGHT,0.1f,100.f };
 	camera.Translate(vec3{ 0.f,0.f,-10.f });
 
-	constexpr auto cameraMovement = 10.f;
-	auto t1 = context.GetInputManager()->RegisterEvent([&](Renderer::Input::KeyInfo) {
-		camera.Translate(vec3(cameraMovement, 0.f, 0.f));
-		}, Renderer::Input::KeyboardCode::W, Renderer::Input::ButtonStatus::DOWN);
-
-	auto t2 = context.GetInputManager()->RegisterEvent([&](Renderer::Input::KeyInfo) {
-		camera.Translate(vec3(-cameraMovement, 0.f, 0.f));
-		}, Renderer::Input::KeyboardCode::S, Renderer::Input::ButtonStatus::DOWN);
-
-	auto t3 = context.GetInputManager()->RegisterEvent([&](Renderer::Input::KeyInfo) {
-		camera.Translate(vec3(0.f, cameraMovement, 0.f));
-		}, Renderer::Input::KeyboardCode::A, Renderer::Input::ButtonStatus::DOWN);
-
-	auto t4 = context.GetInputManager()->RegisterEvent([&](Renderer::Input::KeyInfo) {
-		camera.Translate(vec3(0.f, -cameraMovement, 0.f));
-		}, Renderer::Input::KeyboardCode::D, Renderer::Input::ButtonStatus::DOWN);
-
-
+	CameraMovement movement{camera, *context.GetInputManager()};
+	auto defaultProgram = CreateDefaultProgram(camera);
 
 	Renderer::GL::BasicQuad quad{ Core::Transform{ vec3{0.f}, vec3{}, vec3{30.f} }, Renderer::Type::BLUE };
 	Renderer::GL::BasicQuad quad2{ Core::Transform{ vec3{20.f,20.f, -1.f}, vec3{}, vec3{30.f} } };
 
-	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Type::RawColor > batch;
+
+
+	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Type::RawColor > batch{ defaultProgram };
 	batch.AddQuad(quad.GetVBOData());
 	batch.AddQuad(quad2.GetVBOData());
 	batch.SendQuadDataToGPU();
-	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Type::RawColor > batch2;
+	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Type::RawColor > batch2{ defaultProgram };
 	batch2.SendQuadDataToGPU();
 
-	Renderer::GL::Shader vs(std::string_view(vertexShaderSource), OpenGLUtils::Shader::Type::VERTEX);
-	Renderer::GL::Shader fs(std::string_view(fragmentShaderSource), OpenGLUtils::Shader::Type::FRAGMENT);
-	Renderer::GL::Program program{ vs, fs };
-	program.LinkProgram();
-	program();
 
 
 	auto lambda2 = [&](Renderer::Input::KeyInfo /*key*/) {
@@ -121,13 +132,8 @@ int main()
 		glfwPollEvents();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		program.SetUniformMatrix4("model", glm::identity<mat4>());
-		auto [view, projection] = camera.GetCameraAndProjectionMatrices();
-		program.SetUniformMatrix4("view", view);
-		program.SetUniformMatrix4("projection", projection);
-
-		batch2.Draw();
-		batch.Draw();
+		batch2.Draw(camera);
+		batch.Draw(camera);
 		// update other events like input handling
 
 		glfwSwapBuffers(window.get());

@@ -19,16 +19,13 @@ namespace Renderer::GL {
 	public:
 		Program();
 
-		template<typename ... Args>
-		Program(Args&& ... shaders) {
-			id = glCreateProgram();
-			(AttachShader(shaders), ...);
-		}
+		Program(const Program& other) : id(other.id) {}
+
+		Program(const Shader& vs, const Shader& fs);
 		void AttachShader(const Shader& shader)const;
 
 		void LinkProgram()const;
-		void operator()()const;
-
+		void UseProgram()const;
 
 		void SetUniform1(std::string_view name, float value) const;
 

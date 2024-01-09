@@ -5,6 +5,13 @@ Renderer::GL::Program::Program()
 	id = glCreateProgram();
 }
 
+Renderer::GL::Program::Program(const Shader& vs, const Shader& fs) {
+	id = glCreateProgram();
+	AttachShader(vs);
+	AttachShader(fs);
+	LinkProgram();
+}
+
 void Renderer::GL::Program::AttachShader(const Shader& shader)const
 {
 	glAttachShader(id, shader);
@@ -31,18 +38,20 @@ void Renderer::GL::Program::LinkProgram()const
 #endif
 }
 
-void Renderer::GL::Program::operator()()const
+void Renderer::GL::Program::UseProgram()const
 {
 	glUseProgram(id);
 }
 
 void Renderer::GL::Program::SetUniform1(std::string_view name, float value) const
 {
+	UseProgram();
 	glUniform1f(glGetUniformLocation(id, name.data()), value);
 }
 
 void Renderer::GL::Program::SetUniformMatrix4(std::string_view name, const mat4& value)
 {
+	UseProgram();
 	auto uniformPos = glGetUniformLocation(id, name.data());
 	RenderAssert(uniformPos > -1, "Trying to sent an invalid uniform for shader");
 	glUniformMatrix4fv(uniformPos, 1, false, glm::value_ptr(value));

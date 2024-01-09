@@ -3,6 +3,8 @@
 #include "Type/Color.h"
 #include "OpenGl/Buffer.h"
 #include "OpenGl/VertexAttributeObject.h"
+#include "OpenGl/Program.h"
+#include "OpenGl/Camera.h"
 #include "Geometry/BasicShapes.h"
 namespace Renderer::GL {
 
@@ -29,7 +31,8 @@ namespace Renderer::GL {
 		static constexpr auto InactiveQuad = !ActiveQuad;
 	public:
 		using VertexData = std::tuple<VBOTypes...>;
-		QuadBatcher() :vao(), vbo(OpenGLUtils::Buffer::BufferType::ARRAY), ibo(){
+
+		QuadBatcher(Program shader) :vao(), vbo(OpenGLUtils::Buffer::BufferType::ARRAY), ibo(), shaderProgram(shader) {
 			InitializeVAO();
 		}
 
@@ -67,8 +70,11 @@ namespace Renderer::GL {
 			dirty = true;
 		}
 
-		void Draw()
+		void Draw(auto& camera)
 		{
+			shaderProgram.UseProgram();
+			shaderProgram.SetUniformMatrix4("view", camera.GetCameraViewMatrix());
+
 			HandleDirtyFlag();
 			ibo.Bind();
 			vao.Bind();
@@ -119,6 +125,7 @@ namespace Renderer::GL {
 		VertexAtributeObject vao;
 		OpenGlBuffer<VBOTypes...> vbo;
 		IndexBuffer ibo;
+		Program shaderProgram;
 		std::vector<bool> quadStatus;
 		bool dirty = true;
 	};

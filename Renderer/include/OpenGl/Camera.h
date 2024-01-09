@@ -13,28 +13,35 @@ namespace Renderer::GL {
 		void Translate(const vec3& translation)
 		{
 			transform.position += translation;
+			dirtyTransform = true;
 		}
 		void Rotate(const vec3& axis, float degrees)
 		{
 			auto rotation = axis * degrees;
 			transform.eulerRotation += rotation;
+			dirtyTransform = true;
 		}
 
-		mat4 GetCameraViewMatrix() const
+		mat4 GetCameraViewMatrix()
 		{
-			return static_cast<mat4>(transform);
+			if(dirtyTransform)
+				viewMatrix = static_cast<mat4>(transform);
+			dirtyTransform = false;
+			return viewMatrix;
 		}
 		mat4 GetProjectionMatrix() const
 		{
 			return static_cast<const T*>(this)->GetProjectionMatrixImpl();
 		}
 
-		std::tuple<mat4, mat4> GetCameraAndProjectionMatrices()const {
+		std::tuple<mat4, mat4> GetCameraAndProjectionMatrices() {
 			return { GetCameraViewMatrix(), GetProjectionMatrix() };
 		}
 
 	private:
 		::Core::Transform transform;
+		bool dirtyTransform = true;
+		mat4 viewMatrix = glm::identity<mat4>();
 	};
 
 

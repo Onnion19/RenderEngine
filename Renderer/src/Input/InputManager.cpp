@@ -20,6 +20,20 @@ namespace Renderer::Input {
 	}
 
 
+#if RENDERER_DEBUG
+	InputManager::InputManager()
+	{
+		// Input debugger
+		auto lambda = [](Renderer::Input::KeyInfo key) {
+
+			std::string status = (key.status == Renderer::Input::ButtonStatus::DOWN) ? "DOWN" : "UP";
+
+			std::cout << status << " Key: " << Renderer::Input::DebugKeyCodeText(key.code) << " Modifier: " << Renderer::Input::DebugKeyCodeText(key.modifier) << std::endl << std::endl;
+			};
+		debugInputToken = RegisterEvent(lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::DOWN);
+		RegisterEvent(debugInputToken, lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::UP);
+	}
+#endif
 
 	Renderer::Core::TokenOwner InputManager::RegisterEvent(Callback::type&& function, KeyboardCode kc, ButtonStatus bs)
 	{

@@ -26,8 +26,15 @@ namespace Renderer::Input {
 		using Callback = Renderer::Callbacks::Callback<void, KeyInfo>;
 		using KeyCallbackMap = std::map<BitMask, KeyCallback>;
 		using Token = Renderer::Core::TokenOwner;
+#if RENDERER_DEBUG
+	private:
+		Token debugInputToken;
+	public:
+		InputManager();
+#else
 	public:
 		InputManager() = default;
+#endif
 
 		[[nodiscard]] Token RegisterEvent(Callback::type&& function, KeyboardCode code, ButtonStatus stauts);
 		[[nodiscard]] Token RegisterEvent(Callback::type&& function, BitMask code, ButtonStatus stauts);
@@ -41,7 +48,6 @@ namespace Renderer::Input {
 
 	private:
 		KeyCallbackMap mCallbacks;
-
 		friend class InputSystem;
 	};
 
