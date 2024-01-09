@@ -72,30 +72,26 @@ int main()
 
 
 
-	std::vector<std::tuple<Renderer::Geometry::Point2D, Renderer::Type::RawColor>> points = {
-	{{-0.f ,0.5f}, Renderer::Type::RED},
-	{{0.5, 0.5f}, Renderer::Type::RED },
-	{{0.5f, -0.f}, Renderer::Type::GREEN},
-	{{-0.f, -0.f}, Renderer::Type::BLUE} };
+	//std::vector<std::tuple<Renderer::Geometry::Point2D, Renderer::Type::RawColor>> points = {
+	//{{-0.f ,0.5f}, Renderer::Type::RED},
+	//{{0.5, 0.5f}, Renderer::Type::RED },
+	//{{0.5f, -0.f}, Renderer::Type::GREEN},
+	//{{-0.f, -0.f}, Renderer::Type::BLUE} };
 
-	std::vector<std::tuple<Renderer::Geometry::Point2D, Renderer::Type::RawColor>> points2 = {
-		{{-0.5f, 0.f}, Renderer::Type::RED},
-		{{0.f, 0.f}, Renderer::Type::RED},
-		{{0.f, -0.3f}, Renderer::Type::RED},
-		{{-0.5f, -0.3f}, Renderer::Type::BLUE} };
+	//std::vector<std::tuple<Renderer::Geometry::Point2D, Renderer::Type::RawColor>> points2 = {
+	//	{{-0.5f, 0.f}, Renderer::Type::RED},
+	//	{{0.f, 0.f}, Renderer::Type::RED},
+	//	{{0.f, -0.3f}, Renderer::Type::RED},
+	//	{{-0.5f, -0.3f}, Renderer::Type::BLUE} };
+
+
+	Renderer::GL::BasicQuad quad{ Core::Transform{ vec3{}, vec3{}, vec3{0.25f} } };
+	Renderer::GL::BasicQuad quad2{ Core::Transform{ vec3{-0.25}, vec3{}, vec3{0.25f} } , Renderer::Type::BLUE };
 
 	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Type::RawColor > batch;
-	batch.AddQuad(points);
-	batch.AddQuad(points2);
+	batch.AddQuad(quad.GetVBOData());
+	batch.AddQuad(quad2.GetVBOData());
 	batch.SendQuadDataToGPU();
-
-
-
-	Core::Transform2D transform{ {0.5f,0.5f} , {0.2f, 0.2f}, 0.f };
-	Renderer::GL::BasicQuad quad(transform, Renderer::Type::BLUE);
-
-	Core::Transform2D transform2{ {0.f,0.f} , {0.2f, 0.2f}, 0.f };
-	Renderer::GL::BasicQuad quad2(transform2);
 
 	Renderer::GL::Shader vs(std::string_view(vertexShaderSource), OpenGLUtils::Shader::Type::VERTEX);
 	Renderer::GL::Shader fs(std::string_view(fragmentShaderSource), OpenGLUtils::Shader::Type::FRAGMENT);
@@ -124,8 +120,6 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		quad.Draw();
-		quad2.Draw();
 		batch.Draw();
 		// update other events like input handling
 

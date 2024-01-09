@@ -1,48 +1,28 @@
 #include "OpenGl/Quad.h"
 #include "Type/Transform.h"
 
-Renderer::GL::BasicQuad::BasicQuad(const ::Core::Transform2D& transform, const Renderer::Type::RawColor& color)
-	: rect(transform), vbo(OpenGLUtils::Buffer::BufferType::ARRAY)
+Renderer::GL::BasicQuad::BasicQuad(const ::Core::Transform& transform, const Renderer::Type::RawColor& color)
+	: rect(transform), quadColor(color)
+{}
+
+std::array<Renderer::Geometry::Point2D, 4> Renderer::GL::BasicQuad::GetVertices() const
 {
-	InitializeVAO();
-	SetPosition(transform, color);
+	return rect.GetCorners();
 }
 
-void Renderer::GL::BasicQuad::SetPosition(const::Core::Transform2D& transform, const Renderer::Type::RawColor& color)
+Renderer::Type::RawColor Renderer::GL::BasicQuad::GetColor() const
 {
-	std::vector<std::tuple<Geometry::Point2D, Renderer::Type::RawColor>> data;
-	rect = { transform };
-	auto points = rect.GetCorners();
-	std::transform(points.begin(), points.end(), std::back_inserter(data), 
-		[&](const Geometry::Point2D& point) -> std::tuple<Geometry::Point2D, Renderer::Type::RawColor> {
-			return { point, color };
-		});
-	vbo.Insert(data);
-	vbo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::STATIC_DRAW);
-	dirty = true;
-
+	return quadColor;
 }
 
-void Renderer::GL::BasicQuad::Draw()
+std::vector<Renderer::GL::BasicQuad::VBOTy> Renderer::GL::BasicQuad::GetVBOData() const
 {
-	vao.Bind();
-	if (dirty)
-	{
-		dirty = false;
-	}
+	std::vector<VBOTy> data;
+	data.reserve(4);
+	auto vertices = GetVertices();
+	auto color = GetColor();
+	std::transform(vertices.begin(), vertices.end(), std::back_inserter(data), [&](const Geometry::Point2D& vertice) -> VBOTy {return { vertice, color }; });
 
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	vao.Unbind();
+	return data;
 }
-
-void Renderer::GL::BasicQuad::InitializeVAO()
-{
-	vao.Bind();
-	// This attributes probably needs to be updated by shader or something
-	vbo.Bind();
-	Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Renderer::Geometry::Point2D> position{ 0 ,2, OpenGLUtils::Buffer::GLType::FLOAT, false };
-	Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Renderer::Type::RawColor> color{ 1,4, OpenGLUtils::Buffer::GLType::FLOAT, false };
-	vao.EnableAndDefineAttributePointer(position);
-	vao.EnableAndDefineAttributePointer(color);
-	vao.Unbind();
-}
+	

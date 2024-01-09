@@ -5,7 +5,7 @@
 #include <variant>
 
 namespace Core {
-	struct Transform2D;
+	struct Transform;
 }
 
 namespace Renderer::Geometry
@@ -36,7 +36,7 @@ namespace Renderer::Geometry
 	struct Rectangle {
 		Rectangle() noexcept = default;
 		Rectangle(const Point2D& tl, const Point2D& br) noexcept;
-		Rectangle(const ::Core::Transform2D& transform) noexcept;
+		Rectangle(const ::Core::Transform& transform) noexcept;
 		Point2D topLeft{};
 		Point2D botRight{};
 		Point2D GetCenter()const;

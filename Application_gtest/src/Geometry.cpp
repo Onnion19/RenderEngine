@@ -31,10 +31,10 @@ namespace Renderer::Geometry {
 
 	TEST(Rectangle, FromTransform)
 	{
-		::Core::Transform2D transform{
-			vec2 {0.f,0.f},
-			vec2{5.f,5.f},
-			0.f
+		::Core::Transform transform{
+			vec3 {0.f},
+			vec3{0.f},
+			vec3 {5.f,5.f, 1.f}
 		};
 		Rectangle rect{ transform };
 

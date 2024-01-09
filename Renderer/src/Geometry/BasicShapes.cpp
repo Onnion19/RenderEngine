@@ -17,7 +17,7 @@ namespace Renderer::Geometry {
 		, botRight(br)
 	{}
 
-	Rectangle::Rectangle(const::Core::Transform2D& transform) noexcept
+	Rectangle::Rectangle(const::Core::Transform& transform) noexcept
 		: topLeft(transform.position.x - transform.size.x, transform.position.y + transform.size.y)
 		, botRight(transform.position.x + transform.size.x, transform.position.y - transform.size.y)
 	{}

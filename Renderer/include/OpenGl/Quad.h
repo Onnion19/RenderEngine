@@ -5,24 +5,21 @@
 #include "OpenGl/VertexAttributeObject.h"
 #include "Type/Color.h"
 namespace Core {
-	struct Transform2D;
+	struct Transform;
 }
 
 namespace Renderer::GL {
 
 	class BasicQuad {
 	public: 
-		BasicQuad(const ::Core::Transform2D& transform, const Renderer::Type::RawColor& color = Renderer::Type::WHITE);
-		void SetPosition(const ::Core::Transform2D& transform, const Renderer::Type::RawColor&);
-		void Draw();
+		using VBOTy = std::tuple<Renderer::Geometry::Point2D, Renderer::Type::RawColor>;
+		BasicQuad(const ::Core::Transform& transform, const Renderer::Type::RawColor& color = Renderer::Type::WHITE);
+		std::array<Geometry::Point2D, 4> GetVertices()const;
+		Renderer::Type::RawColor GetColor()const;
 
-	private: 
-		void InitializeVAO();
+		std::vector<VBOTy> GetVBOData()const;
 	private: 
 		Geometry::Rectangle rect;
-		OpenGlBuffer < Geometry::Point2D, Renderer::Type::RawColor> vbo;
-		VertexAtributeObject vao;
-		bool dirty = true;
-
+		Renderer::Type::RawColor quadColor;
 	};
 }
