@@ -59,39 +59,17 @@ int main()
 	auto token = context.GetInputManager()->RegisterEvent(lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::DOWN);
 	context.GetInputManager()->RegisterEvent(token, lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::UP);
 
-
-
-	//Create Mesh class 
-		// Contains all data: 
-		// Positions , color, etc... 
-		// Metaprogramming to figure out which buffers requires
-		// Assimp? 
-		// Dynamic vs Static meshes
-		// Animations? 
-
-
-
-
-	//std::vector<std::tuple<Renderer::Geometry::Point2D, Renderer::Type::RawColor>> points = {
-	//{{-0.f ,0.5f}, Renderer::Type::RED},
-	//{{0.5, 0.5f}, Renderer::Type::RED },
-	//{{0.5f, -0.f}, Renderer::Type::GREEN},
-	//{{-0.f, -0.f}, Renderer::Type::BLUE} };
-
-	//std::vector<std::tuple<Renderer::Geometry::Point2D, Renderer::Type::RawColor>> points2 = {
-	//	{{-0.5f, 0.f}, Renderer::Type::RED},
-	//	{{0.f, 0.f}, Renderer::Type::RED},
-	//	{{0.f, -0.3f}, Renderer::Type::RED},
-	//	{{-0.5f, -0.3f}, Renderer::Type::BLUE} };
-
-
 	Renderer::GL::BasicQuad quad{ Core::Transform{ vec3{}, vec3{}, vec3{0.25f} } };
 	Renderer::GL::BasicQuad quad2{ Core::Transform{ vec3{-0.25}, vec3{}, vec3{0.25f} } , Renderer::Type::BLUE };
+	Renderer::GL::BasicQuad quad3{ Core::Transform{ vec3{0.25f}, vec3{}, vec3{0.15f} } , Renderer::Type::RED };
 
 	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Type::RawColor > batch;
 	batch.AddQuad(quad.GetVBOData());
 	batch.AddQuad(quad2.GetVBOData());
 	batch.SendQuadDataToGPU();
+	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Type::RawColor > batch2;
+	batch2.AddQuad(quad3.GetVBOData());
+	batch2.SendQuadDataToGPU();
 
 	Renderer::GL::Shader vs(std::string_view(vertexShaderSource), OpenGLUtils::Shader::Type::VERTEX);
 	Renderer::GL::Shader fs(std::string_view(fragmentShaderSource), OpenGLUtils::Shader::Type::FRAGMENT);
@@ -120,6 +98,7 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		batch2.Draw();
 		batch.Draw();
 		// update other events like input handling
 
