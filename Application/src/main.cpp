@@ -14,8 +14,8 @@
 #include "Type/Color.h"
 
 // settings
-const unsigned int SCR_WIDTH = 1920;
-const unsigned int SCR_HEIGHT = 1080;
+constexpr unsigned int SCR_WIDTH = 1920;
+constexpr unsigned int SCR_HEIGHT = 1080;
 
 const char* vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
@@ -47,7 +47,7 @@ int main()
 	Renderer::GLFW::GLFWContext context;
 	// glfw window creation
 	// --------------------
-	auto window = context.CreateNewWindow(SCR_HEIGHT, SCR_HEIGHT, "Renderer");
+	auto window = context.CreateNewWindow(SCR_WIDTH, SCR_HEIGHT, "Renderer");
 	if (!window.Valid())
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -62,8 +62,8 @@ int main()
 
 	auto token = context.GetInputManager()->RegisterEvent(lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::DOWN);
 	context.GetInputManager()->RegisterEvent(token, lambda, Renderer::Input::KeyboardCode::None, Renderer::Input::ButtonStatus::UP);
-	Renderer::GL::OrthoCamera camera{ 500.f,500.f,0.1f,100.f };
-	camera.Translate(vec3{ 0.f,0.f,-10.f});
+	Renderer::GL::OrthoCamera camera{ SCR_WIDTH,SCR_HEIGHT,0.1f,100.f };
+	camera.Translate(vec3{ 0.f,0.f,-10.f });
 
 	constexpr auto cameraMovement = 10.f;
 	auto t1 = context.GetInputManager()->RegisterEvent([&](Renderer::Input::KeyInfo) {
@@ -125,16 +125,6 @@ int main()
 		auto [view, projection] = camera.GetCameraAndProjectionMatrices();
 		program.SetUniformMatrix4("view", view);
 		program.SetUniformMatrix4("projection", projection);
-
-		std::cout << "\n\nView Matrix\n";
-		for (int i = 0; i < 4; i++)
-		{
-			for (int j = 0; j < 4; j++)
-			{
-				std::cout << view[i][j] << "\t";
-			}
-			std::cout << std::endl;
-		}
 
 		batch2.Draw();
 		batch.Draw();
