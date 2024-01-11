@@ -1,16 +1,25 @@
 #include "OpenGl/Quad.h"
 #include "Type/Transform.h"
+#include <algorithm>
+#include <iterator>
+#include <array>
+#include <vector>
 
-Renderer::GL::BasicQuad::BasicQuad(const ::Core::Transform& transform, const Renderer::Type::RawColor& color)
-	: rect(transform), quadColor(color)
+Renderer::GL::BasicQuad::BasicQuad(const ::Core::Transform& t, const Renderer::Type::ColorRGBA& color)
+	: _transform(t), quadColor(color)
 {}
 
 std::array<Renderer::Geometry::Point2D, 4> Renderer::GL::BasicQuad::GetVertices() const
 {
-	return rect.GetCorners();
+	return Geometry::Rectangle(_transform).GetCorners();
 }
 
-Renderer::Type::RawColor Renderer::GL::BasicQuad::GetColor() const
+void Renderer::GL::BasicQuad::SetColor(const Renderer::Type::ColorRGBA& color)
+{
+	quadColor = color;
+}
+
+const Renderer::Type::ColorRGBA& Renderer::GL::BasicQuad::GetColor() const
 {
 	return quadColor;
 }

@@ -10,5 +10,5 @@
 #define NonBreakingRenderAssert(expression, msg) (void)((!!(expression)) || (wprintf(L"Assert triggered:\t%S\n%s %i\n",msg, _CRT_WIDE(__FILE__), (unsigned)(__LINE__)))< 0);                                                               
 
 #else
-#define RenderAssert(expression) ((void)0)
+#define RenderAssert(expression, msg) ((void)0)
 #endif

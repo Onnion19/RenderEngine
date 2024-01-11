@@ -7,11 +7,14 @@
 #include "OpenGl/Buffer.h"
 #include "OpenGl/Camera.h"
 #include "OpenGl/QuadBatcher.h"
-#include "OpenGl/Quad.h"
 #include "OpenGl/Program.h"
 #include "OpenGl/VertexAttributeObject.h"
 #include "Type/Transform.h"
 #include "Type/Color.h"
+
+#include "scene/BlocksBuilder.h"
+
+
 
 // settings
 constexpr unsigned int SCR_WIDTH = 1920;
@@ -52,7 +55,7 @@ struct CameraMovement {
 			camera.Translate(vec3(-cameraMovement, 0.f, 0.f));
 			}, Renderer::Input::KeyboardCode::S, Renderer::Input::ButtonStatus::DOWN);
 
-		manager.RegisterEvent(aliveToken,[&](Renderer::Input::KeyInfo) {
+		manager.RegisterEvent(aliveToken, [&](Renderer::Input::KeyInfo) {
 			camera.Translate(vec3(0.f, cameraMovement, 0.f));
 			}, Renderer::Input::KeyboardCode::A, Renderer::Input::ButtonStatus::DOWN);
 
@@ -61,14 +64,21 @@ struct CameraMovement {
 			}, Renderer::Input::KeyboardCode::D, Renderer::Input::ButtonStatus::DOWN);
 	}
 
-private: 
+private:
 	Renderer::Core::TokenOwner aliveToken;
 };
 
 
+Renderer::GL::OrthoCamera GenerateCamera()
+{
+	Renderer::GL::OrthoCamera camera{ SCR_WIDTH,SCR_HEIGHT,0.1f,100.f };
+	camera.Translate(vec3{ 0.f,0.f,-10.f });
+	return camera;
+}
+
 Renderer::GL::Program CreateDefaultProgram(const auto& camera)
 {
-
+	// Takes in the camera cause the projection is always constant
 	Renderer::GL::Shader vs(std::string_view(vertexShaderSource), OpenGLUtils::Shader::Type::VERTEX);
 	Renderer::GL::Shader fs(std::string_view(fragmentShaderSource), OpenGLUtils::Shader::Type::FRAGMENT);
 	Renderer::GL::Program program{ vs, fs };
@@ -91,37 +101,26 @@ int main()
 	RenderAssert(window.Valid(), "Failed to create GLFW window");
 
 
-	
-	Renderer::GL::OrthoCamera camera{ SCR_WIDTH,SCR_HEIGHT,0.1f,100.f };
-	camera.Translate(vec3{ 0.f,0.f,-10.f });
+	auto camera = GenerateCamera();
+	CameraMovement movement{ camera, *context.GetInputManager() };
 
-	CameraMovement movement{camera, *context.GetInputManager()};
+
+	auto blocks = Game::BlockBuilder::BuildBlocks("Assets/level.blocks", vec3{ 30.f, 30.f, 0.f }, vec3{ 30.f, 500.f, -1.f }, vec3{ 10.f, 10.f, 0.f });
+
+	if (!blocks)
+	{
+		std::cout << blocks.error() << std::endl;
+		return -1;
+	}
+
 	auto defaultProgram = CreateDefaultProgram(camera);
-
-	Renderer::GL::BasicQuad quad{ Core::Transform{ vec3{0.f}, vec3{}, vec3{30.f} }, Renderer::Type::BLUE };
-	Renderer::GL::BasicQuad quad2{ Core::Transform{ vec3{20.f,20.f, -1.f}, vec3{}, vec3{30.f} } };
-
-
-
 	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Type::RawColor > batch{ defaultProgram };
-	batch.AddQuad(quad.GetVBOData());
-	batch.AddQuad(quad2.GetVBOData());
+	for (const auto& quad : blocks.value())
+	{
+		batch.AddQuad(quad.getVBOData());
+	}
 	batch.SendQuadDataToGPU();
-	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Type::RawColor > batch2{ defaultProgram };
-	batch2.SendQuadDataToGPU();
 
-
-
-	auto lambda2 = [&](Renderer::Input::KeyInfo /*key*/) {
-		static bool a = true;
-		if (a)
-			batch.HideQuad(0);
-		else
-			batch.ShowQuad(0);
-		a = !a;
-		};
-
-	auto token2 = context.GetInputManager()->RegisterEvent(lambda2, Renderer::Input::KeyboardCode::F, Renderer::Input::ButtonStatus::UP);
 
 	while (!close)
 	{
@@ -129,14 +128,13 @@ int main()
 		context.PullInputEvents();
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			close = true;
-		glfwPollEvents();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		batch2.Draw(camera);
 		batch.Draw(camera);
 		// update other events like input handling
 
 		glfwSwapBuffers(window.get());
+		glfwPollEvents();
 	}
 	return 0;
 }

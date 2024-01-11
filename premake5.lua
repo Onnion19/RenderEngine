@@ -44,7 +44,8 @@ project "Renderer"
 		links {"glfw3"}
 		
 		postbuildcommands {
-			"{copy} ../../bin/output/%{cfg.buildcfg}/%{prj.name}.lib  ../../bin/output/%{cfg.buildcfg}/Test/",
+			"{MKDIR} ../../bin/output/%{cfg.buildcfg}/Test/",
+			"{COPYFILE} ../../bin/output/%{cfg.buildcfg}/%{prj.name}.lib  ../../bin/output/%{cfg.buildcfg}/Test/",
 			"{echo} Renderer Lib copied"
 		}
 		
@@ -62,10 +63,14 @@ project "Application"
 		files {"%{prj.name}/src/**.cpp","%{prj.name}/src/**.h", "%{prj.name}/src/**.hpp",
 				"%{prj.name}/include/**.h", "%{prj.name}/include/**.hpp"}
 				
-		includedirs{".%{prj.name}/include" , "%{prj.name}./src", "./Renderer/include", "./thirdparty/include","./thirdparty/glm/glm"}
+		includedirs{"%{prj.name}./include" , "%{prj.name}./src", "./Renderer/include", "./thirdparty/include","./thirdparty/glm/glm"}
 		links {"Renderer"}
 		
-		
+		postbuildcommands {
+			"{COPYDIR} ../../Assets/  ../../build/%{prj.name}//Assets/",
+			"{COPYDIR} ../../Assets/ ../../bin/%{prj.name}//Assets/",
+			"{echo} Copied Assets"
+		}
 
 project "GTest"
 		kind "StaticLib"
@@ -89,6 +94,6 @@ project "Application_gtest"
 		files {"%{prj.name}/src/**.cpp","%{prj.name}/src/**.h", "%{prj.name}/src/**.hpp",
 				"%{prj.name}/include/**.h", "%{prj.name}/include/**.hpp"}
 				
-		includedirs{".%{prj.name}/include" , "%{prj.name}./src", "./Renderer/include", "./thirdparty/include","./thirdparty/glm/glm", "googletest/googletest/include"}
+		includedirs{"%{prj.name}./include" , "%{prj.name}./src", "./Renderer/include", "./thirdparty/include","./thirdparty/glm/glm", "googletest/googletest/include"}
 		links {"Renderer" ,"GTest"}
 		
