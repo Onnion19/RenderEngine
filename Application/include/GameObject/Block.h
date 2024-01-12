@@ -19,7 +19,7 @@ namespace Game {
 		uint32 GetId()const;
 	private:
 		Renderer::GL::BasicQuad quad;
-		uint32 quadID;
+		uint32 quadID = 0;
 		// Collider
 	};
 }
