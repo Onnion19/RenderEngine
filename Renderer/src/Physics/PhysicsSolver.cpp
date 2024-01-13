@@ -35,30 +35,34 @@ namespace Physics::CollisionSolver {
 	}
 
 	template<>
-	HitResult Solve_Internal< Renderer::Geometry::Rectangle, Renderer::Geometry::Circle >(const Renderer::Geometry::Rectangle& a, const Renderer::Geometry::Circle& b)
+	HitResult Solve_Internal< Renderer::Geometry::Rectangle, Renderer::Geometry::Circle >(const Renderer::Geometry::Rectangle& rect, const Renderer::Geometry::Circle& circle)
 	{
 
-		auto [a_width, a_height] = a.GetWidthHeight();
-		auto center = a.GetCenter();
+		auto [rect_width, rect_heigth] = rect.GetWidthHeight();
+		auto rectCenter = rect.GetCenter();
 		bool collision = false;
 
-		float dx = fabsf(b.center.x - center.x);
-		float dy = fabsf(b.center.y - center.y);
+		float dx = fabsf(circle.center.x - rectCenter.x);
+		float dy = fabsf(circle.center.y - rectCenter.y);
 
-		if (dx > (a_width / 2.0f + b.radius)) return { false, vec3{0.f} };
-		if (dy > (a_height / 2.0f + b.radius)) return { false, vec3{0.f} };
+		if (dx > (rect_width / 2.0f + circle.radius)) return { false, vec3{0.f} };
+		if (dy > (rect_heigth / 2.0f + circle.radius)) return { false, vec3{0.f} };
 
 
 
-		if (dx > (a_width / 2.0f) && dy > (a_height / 2.0f))
+		if (dx > (rect_width / 2.0f) && dy > (rect_heigth / 2.0f))
 		{
-			float cornerDistanceSq = (dx - a_width / 2.0f) * (dx - a_width / 2.0f) +
-				(dy - a_height / 2.0f) * (dy - a_height / 2.0f);
+			float cornerDistanceSq = (dx - rect_width / 2.0f) * (dx - rect_width / 2.0f) +
+				(dy - rect_heigth / 2.0f) * (dy - rect_heigth / 2.0f);
 
-			collision = (cornerDistanceSq <= (b.radius * b.radius));
+			collision = (cornerDistanceSq <= (circle.radius * circle.radius));
+		}
+		else
+		{
+			collision = true;
 		}
 
-		vec3 normal = (collision) ? vec3{ glm::normalize(b.center - center), 0.f } : vec3{ 0.f };
+		vec3 normal = (collision) ? vec3{ glm::normalize(circle.center - rectCenter), 0.f } : vec3{ 0.f };
 
 		return {collision, normal};
 	}

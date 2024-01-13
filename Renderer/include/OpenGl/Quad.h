@@ -17,8 +17,10 @@ namespace Renderer::GL {
 		const Renderer::Type::ColorRGBA& GetColor()const;
 		std::vector<VBOTy> GetVBOData()const;
 
-		::Core::Transform& operator->() { return _transform; }
-		const ::Core::Transform& operator->() const { return _transform; }
+
+
+		::Core::Transform& GetTransform() { return _transform; }
+		const ::Core::Transform& GetTransform() const { return _transform; }
 	private:
 		Renderer::Type::ColorRGBA quadColor;
 		::Core::Transform _transform;

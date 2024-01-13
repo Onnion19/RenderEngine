@@ -16,9 +16,11 @@ namespace Physics {
 		void UnregisterCollider(const Collider& collider);
 
 		bool SolveCollision(Collider& collider);
-
 	private: 
-		std::vector<Collider*> colliders;
+		void RemoveColliders();
+	private: 
+		std::vector<Observer<Collider>> colliders;
+		std::vector<colliderID> colliderToRemove;
 		colliderID nextColliderId = 0;
 	};
 }

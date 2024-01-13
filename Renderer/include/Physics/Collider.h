@@ -3,6 +3,7 @@
 #include "Geometry/BasicShapes.h"
 #include <type_traits>
 #include <variant>
+#include "Core/RenderAssert.h"
 namespace Physics {
 
 
@@ -18,6 +19,13 @@ namespace Physics {
 		template<typename T>
 		void UpdateShape(const T& newShape) {
 			shape = { newShape };
+		}
+
+		template<typename T>
+		T& GetShapeAs()
+		{
+			RenderAssert(std::holds_alternative<T>(shape), "Trying to get wrong shape");
+			return std::get<T>(shape);
 		}
 
 		const Shape& GetShape()const { return shape; }

@@ -20,7 +20,7 @@ namespace Game {
 		}
 
 		std::vector<Block> blocks;
-		blocks.reserve(50);
+		blocks.reserve(500);
 
 		// Initial transform
 		Core::Transform transform{};

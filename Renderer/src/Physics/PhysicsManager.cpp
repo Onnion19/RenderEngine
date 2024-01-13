@@ -13,23 +13,23 @@ namespace Physics {
 
 	void PhysicsManager::UnregisterCollider(const Collider& collider)
 	{
-		auto iter = std::find_if(colliders.begin(), colliders.end(), [=](const Collider* o) {return o->GetId() == collider.GetId(); });
-
-		if (iter != colliders.end())
+		if (collider.colliderId != 0)
 		{
-			(*iter)->colliderId = 0;
-			(*iter)->UnregisterCallbacks();
-			colliders.erase(iter);
+			colliderToRemove.emplace_back(collider.colliderId);
 		}
+
 	}
 
 	bool PhysicsManager::SolveCollision(Collider& collider)
 	{
+		RemoveColliders();
 		auto iter = std::find_if(colliders.begin(), colliders.end(), [=](const Collider* o) {return o->GetId() == collider.GetId(); });
 		RenderAssert(iter != colliders.end(), "Collider not registered");
 
 		for (auto& c : colliders)
 		{
+			if (collider.colliderId == c->colliderId) continue;
+
 			auto& collider1 = *(*iter);
 			auto& collider2 = *c;
 
@@ -44,5 +44,18 @@ namespace Physics {
 
 		return false;
 
+	}
+	void PhysicsManager::RemoveColliders()
+	{
+		for (const auto& colliderID : colliderToRemove)
+		{
+			auto iter = std::find_if(colliders.begin(), colliders.end(), [=](const Collider* o) {return o->GetId() == colliderID; });
+			RenderAssert(iter != colliders.end(), "Trying to remove a collider that does not exist");
+			(*iter)->colliderId = 0;
+			(*iter)->UnregisterCallbacks();
+			colliders.erase(iter);
+		}
+
+		colliderToRemove.clear();
 	}
 }
