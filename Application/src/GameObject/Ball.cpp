@@ -1,26 +1,6 @@
 #include "GameObject/Ball.h"
 #include "Physics/PhysicsManager.h"
 
-
-namespace
-{
-
-
-
-	// QUAD Vertices
-	constexpr std::array<Renderer::Geometry::Point2D, 4> QuadVertices{
-		vec2 {-0.5f, 0.5f} ,//TL
-		vec2{0.5f,0.5f}, //TR
-		vec2{0.5f, -0.5f},  //BR
-		vec2{-0.5f, -0.5f} //BL
-	};
-	//Quad Indices
-	constexpr std::array<uint8, 6> QuadIndices{
-		2,1,0,
-		0,3,2
-	};
-}
-
 namespace Game
 {
 	Ball::Ball(Physics::PhysicsManager& manager, const Renderer::GL::Program& shaderProgram, const vec3& position, float radius, float speed, const vec3& initialDirection)
@@ -35,9 +15,14 @@ namespace Game
 	{
 		transform.position = position;
 		physicsManager->RegisterCollider(collider);
-		collider.RegisterOnCollideCallback([this](const vec3& normal) {
-			mruObject.direction = glm::reflect(mruObject.direction, normal);
-			mruObject.speed *= 1.02f;
+		collider.RegisterOnCollideCallback([this, radius](const vec3& normal) {
+
+			if (mruObject.direction.y <= 0.f || transform.position.y > radius + 15.f)
+			{
+				mruObject.direction = glm::reflect(mruObject.direction, normal);
+				mruObject.speed *= 1.02f;
+
+			}
 			});
 
 		InitializeVAO();
@@ -54,6 +39,19 @@ namespace Game
 		mruObject.Apply(deltaTime, transform.position);
 		collider.GetShapeAs< Renderer::Geometry::Circle>().center = transform.position;
 		physicsManager->SolveCollision(collider);
+
+		if (transform.position.y > 1080.f)
+		{
+			mruObject.direction = glm::reflect(mruObject.direction, vec3{ 0.f,-1.f, 0.f });
+		}
+		else if (transform.position.x < radius)
+		{
+			mruObject.direction = glm::reflect(mruObject.direction, vec3{ 1.f,0.f, 0.f });
+		}
+		else if (transform.position.x > 1920.f - radius)
+		{
+			mruObject.direction = glm::reflect(mruObject.direction, vec3{ -1.f,0.f, 0.f });
+		}
 	}
 
 
@@ -65,23 +63,23 @@ namespace Game
 		vbo.Bind();
 		std::vector<VBOType> vboData;
 		vboData.reserve(4);
-		std::transform(QuadVertices.begin(), QuadVertices.end(), std::back_inserter(vboData), [](const vec2& vertice) ->  VBOType {return { vertice, Renderer::Type::BLUE }; });
+		std::transform(Renderer::Geometry::NormalQuad::QuadVertices.begin(), Renderer::Geometry::NormalQuad::QuadVertices.end(), std::back_inserter(vboData), [](const vec2& vertice) ->  VBOType {return { vertice, Renderer::Type::BLUE }; });
 		vbo.Insert(vboData);
-		
+
 		// Build IBO
 		ibo.Bind();
-		ibo.AddIndices(QuadIndices);
-		
+		ibo.AddIndices(Renderer::Geometry::NormalQuad::QuadIndices);
+
 
 		//Build VAO
 		Renderer::GL::VertexAtributeObject::AttributePointer<VBOType, Renderer::Geometry::Point2D> position{ 0 ,2, OpenGLUtils::Buffer::GLType::FLOAT, false };
 		Renderer::GL::VertexAtributeObject::AttributePointer<VBOType, Renderer::Type::RawColor> color{ 1,4, OpenGLUtils::Buffer::GLType::FLOAT, false };
 		vao.EnableAndDefineAttributePointer(position);
 		vao.EnableAndDefineAttributePointer(color);
+		vao.Unbind();
 
 		vbo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::STATIC_DRAW);
 		ibo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::STATIC_DRAW);
-		vao.Unbind();
 	}
 }
 

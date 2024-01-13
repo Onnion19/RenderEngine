@@ -10,6 +10,8 @@ namespace Core {
 
 namespace Renderer::Geometry
 {
+
+
 	struct Point2Dc { float x; float y; };
 	using Point2D = vec2;
 
@@ -47,11 +49,28 @@ namespace Renderer::Geometry
 	};
 
 	struct Circle {
-		Circle() noexcept = default; 
+		Circle() noexcept = default;
 		Circle(const vec2& center, float radius) noexcept;
 
 		float radius;
 		vec2 center;
 	};
+
+
+	namespace NormalQuad {
+		// QUAD Vertices
+		constexpr std::array<Renderer::Geometry::Point2D, 4> QuadVertices{
+			vec2 {-0.5f, 0.5f} ,//TL
+			vec2{0.5f,0.5f}, //TR
+			vec2{0.5f, -0.5f},  //BR
+			vec2{-0.5f, -0.5f} //BL
+		};
+		//Quad Indices
+		constexpr std::array<uint8, 6> QuadIndices{
+			2,1,0,
+			0,3,2
+		};
+	}
+
 
 }

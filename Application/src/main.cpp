@@ -15,6 +15,7 @@
 #include "scene/BlocksBuilder.h"
 #include "Utils/FrameTimer.h"
 #include "GameObject/Ball.h"
+#include "GameObject/Paddle.h"
 #include <thread>
 
 
@@ -88,7 +89,7 @@ int main()
 	CameraMovement movement{ camera, *context.GetInputManager() };
 
 
-	auto blocks = Game::BlockBuilder::BuildBlocks(physicsManager, "Assets/level.blocks", vec3{ 870.f, 50, 0.f }, vec3{ 90.f, SCR_HEIGHT * 0.9f, -1.f }, vec3{ 10.f, 10.f, 0.f });
+	auto blocks = Game::BlockBuilder::BuildBlocks(physicsManager, "Assets/level.blocks", vec3{ 170.f, 50.f, 0.f }, vec3{ 90.f, SCR_HEIGHT * 0.9f, -1.f }, vec3{ 10.f, 10.f, 0.f });
 
 	if (!blocks)
 	{
@@ -104,9 +105,11 @@ int main()
 		block.RegisterOnCollideCallback([&batch, id](const vec3&) {batch.HideQuad(id); });
 	}
 	batch.SendQuadDataToGPU();
-	//Ball(Physics::PhysicsManager& manager, const Renderer::GL::Program& shaderProgram, const vec3& position, float radius, float speed, const vec3& initialDirection = glm::normalize(vec3{ 0.1f, -0.9f,0.f }));
-	Game::Ball ball(physicsManager, CreateDefaultProgram(camera), vec3{500.f,500.f, -1.f}, 50.f, 40.f, glm::normalize(vec3{ 0.1f, +0.9f,0.f }));
 
+
+
+	Game::Ball ball(physicsManager, CreateDefaultProgram(camera), vec3{ 500.f,500.f, -1.f }, 30.f, 280.f, glm::normalize(vec3{ 0.1f, +0.9f,0.f }));
+	Game::Paddle paddle(*context.GetInputManager(), physicsManager, vec3{ SCR_WIDTH / 2.f, 15.f, -1.f }, 150.f, 360.f);
 	Timers::FrameTimer frameTimer;
 	float deltaTime = 0;
 	while (!closeApp)
@@ -115,15 +118,12 @@ int main()
 		context.PullInputEvents();
 
 		// Update
-		// Pad.Update();
+		paddle.update(deltaTime);
 		ball.Update(deltaTime);
-		// physics update
-		// Check Ball Collisions;
-		// Check Game Over;
-		// Draw
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//Pad.Draw();
 		batch.Draw(camera);
+		paddle.Draw(camera);
 		ball.Draw(camera);
 
 		// update other events like input handling

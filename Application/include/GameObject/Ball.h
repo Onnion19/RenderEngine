@@ -29,7 +29,6 @@ namespace Game
 			program.SetUniformMatrix4("model", static_cast<mat4>(transform));
 			ibo.Bind();
 			vao.Bind();
-			//program.SetUniformMatrix4("model", static_cast<mat4>(transform)); 
 			const auto gltype = OpenGLUtils::EnumToGLEnum(OpenGLUtils::Buffer::GLType::UNSIGNED_INT);
 			glDrawElements(GL_TRIANGLES, static_cast<uint32>(ibo.size()), gltype, nullptr);
 			vao.Unbind();
