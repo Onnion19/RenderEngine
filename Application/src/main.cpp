@@ -11,36 +11,15 @@
 #include "OpenGl/VertexAttributeObject.h"
 #include "Type/Transform.h"
 #include "Type/Color.h"
-
+#include "Physics/PhysicsManager.h"
 #include "scene/BlocksBuilder.h"
-
+#include "Utils/FrameTimer.h"
+#include <thread>
 
 
 // settings
 constexpr unsigned int SCR_WIDTH = 1920;
 constexpr unsigned int SCR_HEIGHT = 1080;
-
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"layout (location = 1) in vec3 aColor;\n"
-"out vec3 o_color;\n"
-"uniform mat4 model;\n"
-"uniform mat4 view;\n"
-"uniform mat4 projection;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
-"   o_color = aColor;\n"
-"}\0";
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"in vec3 o_color;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(o_color, 1.0f);\n"
-"}\n\0";
-
-
 
 struct CameraMovement {
 
@@ -79,8 +58,10 @@ Renderer::GL::OrthoCamera GenerateCamera()
 Renderer::GL::Program CreateDefaultProgram(const auto& camera)
 {
 	// Takes in the camera cause the projection is always constant
-	Renderer::GL::Shader vs(std::string_view(vertexShaderSource), OpenGLUtils::Shader::Type::VERTEX);
-	Renderer::GL::Shader fs(std::string_view(fragmentShaderSource), OpenGLUtils::Shader::Type::FRAGMENT);
+	std::filesystem::path vertex{ "Assets/Shaders/DefaultShader.vert" };
+	std::filesystem::path fragment{ "Assets/Shaders/DefaultShader.frag" };
+	Renderer::GL::Shader vs(vertex, OpenGLUtils::Shader::Type::VERTEX);
+	Renderer::GL::Shader fs(fragment, OpenGLUtils::Shader::Type::FRAGMENT);
 	Renderer::GL::Program program{ vs, fs };
 	program.SetUniformMatrix4("model", glm::identity<mat4>());
 	program.SetUniformMatrix4("projection", camera.GetProjectionMatrix());
@@ -88,24 +69,25 @@ Renderer::GL::Program CreateDefaultProgram(const auto& camera)
 	return program;
 }
 
-bool close = false;
+
+constexpr float targetFrameTime = 16.666f;//60fps
+
 int main()
 {
-
-	// glfw: initialize and configure
-	// ------------------------------
 	Renderer::GLFW::GLFWContext context;
-	// glfw window creation
-	// --------------------
 	auto window = context.CreateNewWindow(SCR_WIDTH, SCR_HEIGHT, "Renderer");
 	RenderAssert(window.Valid(), "Failed to create GLFW window");
 
+	bool closeApp = false;
+	auto closeAppToken = context.GetInputManager()->RegisterEvent([&](const auto&) { closeApp = true; }, Renderer::Input::KeyboardCode::Q, Renderer::Input::ButtonStatus::UP);
+
+	Physics::PhysicsManager physicsManager;
 
 	auto camera = GenerateCamera();
 	CameraMovement movement{ camera, *context.GetInputManager() };
 
 
-	auto blocks = Game::BlockBuilder::BuildBlocks("Assets/level.blocks", vec3{ 30.f, 30.f, 0.f }, vec3{ 30.f, 500.f, -1.f }, vec3{ 10.f, 10.f, 0.f });
+	auto blocks = Game::BlockBuilder::BuildBlocks(physicsManager, "Assets/level.blocks", vec3{ 170.f, 50, 0.f }, vec3{ 90.f, SCR_HEIGHT * 0.9f, -1.f }, vec3{ 10.f, 10.f, 0.f });
 
 	if (!blocks)
 	{
@@ -115,26 +97,47 @@ int main()
 
 	auto defaultProgram = CreateDefaultProgram(camera);
 	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Type::RawColor > batch{ defaultProgram };
-	for (const auto& quad : blocks.value())
+	for (auto& block : blocks.value())
 	{
-		batch.AddQuad(quad.getVBOData());
+		auto id = batch.AddQuad(block.getVBOData());
+		block.RegisterOnCollideCallback([&batch, id](const vec3&) {batch.HideQuad(id); });
 	}
 	batch.SendQuadDataToGPU();
 
-
-	while (!close)
+	Timers::FrameTimer frameTimer;
+	float deltaTime = 0;
+	while (!closeApp)
 	{
 		//this is wrong, this will only work for one window. See https://discourse.glfw.org/t/how-to-create-multiple-window/1398/2
 		context.PullInputEvents();
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-			close = true;
 
+		// Update
+		// Pad.Update();
+		// Ball.Update();
+		// physics update
+		// Check Ball Collisions;
+		// Check Game Over;
+		// Draw
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//ball.Draw();
+		//Pad.Draw();
 		batch.Draw(camera);
-		// update other events like input handling
 
+		// update other events like input handling
 		glfwSwapBuffers(window.get());
 		glfwPollEvents();
+
+
+		// time properties
+		deltaTime = frameTimer.Tick();
+		// Lock to 60 fps, don't burn the PC :D
+		auto threadWait = targetFrameTime - deltaTime;
+		if (threadWait > 0.f)
+		{
+			std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(threadWait));
+			deltaTime = targetFrameTime;
+		}
+
 	}
 	return 0;
 }

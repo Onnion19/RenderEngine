@@ -1,6 +1,12 @@
 #pragma once
 
 #include "OpenGl/Quad.h"
+#include "Physics/Collider.h"
+
+namespace Physics {
+	class PhysicsManager;
+}
+
 namespace Game {
 
 	class Block {	
@@ -8,11 +14,12 @@ namespace Game {
 	public: 
 		using Color = Renderer::Type::ColorRGBA;
 		Block() = default;
-		Block(const vec3 position, const vec3& size = defaultSize);
+		Block(Physics::PhysicsManager& manager, const vec3 position, const vec3& size = defaultSize);
 
 		void SetColor(const Color& color);
 		const Color& GetColor()const;
 
+		void RegisterOnCollideCallback(Physics::Collider::CollisionCallback&& callback);
 		auto getVBOData() const { return quad.GetVBOData(); }
 		
 		void SetId(uint32 id);
@@ -20,6 +27,8 @@ namespace Game {
 	private:
 		Renderer::GL::BasicQuad quad;
 		uint32 quadID = 0;
-		// Collider
+
+		Physics::Collider collider;
+
 	};
 }

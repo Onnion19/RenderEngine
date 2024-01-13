@@ -1,7 +1,6 @@
 #include "scene/BlocksBuilder.h"
 #include <fstream>
 #include <ranges>
-
 namespace {
 	void FileGuard(std::ifstream* f)
 	{
@@ -11,7 +10,7 @@ namespace {
 }
 
 namespace Game {
-	std::expected<std::vector<Block>, std::string> BlockBuilder::BuildBlocks(std::string_view filePath, const vec3& block_size, const vec3& start, const vec3& offset)
+	std::expected<std::vector<Block>, std::string> BlockBuilder::BuildBlocks(Physics::PhysicsManager& manager, std::string_view filePath, const vec3& block_size, const vec3& start, const vec3& offset)
 	{
 		// Open the file to read the scene
 		std::unique_ptr < std::ifstream, decltype(&FileGuard)> file{ new std::ifstream(filePath.data()) , &FileGuard };
@@ -25,7 +24,7 @@ namespace Game {
 
 		// Initial transform
 		Core::Transform transform{};
-		transform.position = start;
+		transform.position = start + vec3{ block_size.x / 2.f, - block_size.y / 2.f, 0.f };
 
 		const auto horizontalOffset = vec3{ offset.x + block_size.x, 0.f, 0.f };
 		const auto verticalOffset = vec3{ 0.f, -offset.y - block_size.y, 0.f };
@@ -39,13 +38,13 @@ namespace Game {
 			{
 				if (c > 0)
 				{
-					blocks.emplace_back(transform.position, block_size);
+					blocks.emplace_back(manager, transform.position, block_size);
 				}
 
 				transform.position += horizontalOffset;
 			}
 
-			transform.position.x = start.x;
+			transform.position.x = start.x + block_size.x / 2.f;
 			transform.position += verticalOffset;
 
 		}

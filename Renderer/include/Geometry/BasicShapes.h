@@ -37,11 +37,21 @@ namespace Renderer::Geometry
 		Rectangle() noexcept = default;
 		Rectangle(const Point2D& tl, const Point2D& br) noexcept;
 		Rectangle(const ::Core::Transform& transform) noexcept;
-		Point2D topLeft{};
-		Point2D botRight{};
 		Point2D GetCenter()const;
 		vec2 GetSizeFromCenter() const;
 		std::array<Point2D, 4> GetCorners() const;
+		std::tuple<float, float> GetWidthHeight()const noexcept;
+
+		Point2D topLeft{};
+		Point2D botRight{};
+	};
+
+	struct Circle {
+		Circle() noexcept = default; 
+		Circle(const vec2& center, float radius) noexcept;
+
+		float radius;
+		vec2 center;
 	};
 
 }
