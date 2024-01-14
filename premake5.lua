@@ -68,8 +68,8 @@ project "Application"
 		
 		postbuildcommands {
 			"{COPYDIR} ../../Assets/  ../../build/%{prj.name}//Assets/",
-			"{COPYDIR} ../../Assets/ ../../bin/%{prj.name}//Assets/",
-			"{COPYDIR} ../../thirdparty/libs/Dll ../../bin/%{prj.name}/",
+			"{COPYDIR} ../../Assets/ ../../bin/output/%{cfg.buildcfg}//Assets/",
+			"{COPYDIR} ../../thirdparty/libs/Dll ../../bin/output/%{cfg.buildcfg}",
 			"{COPYDIR} ../../thirdparty/libs/Dll ../../build/%{prj.name}/",
 			"{echo} Copied Assets and dll"
 		}
