@@ -16,6 +16,7 @@ namespace Renderer::GL
 		Texture(TextureData data);
 		~Texture();
 		void Bind();
+		GLBufferId Id() const;
 	private:
 		GLBufferId textureId;
 		TextureData textureData;

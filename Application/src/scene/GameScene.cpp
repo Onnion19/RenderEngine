@@ -52,18 +52,23 @@ namespace Game {
 		InitializeBlocks();
 		InitializeBall();
 		InitializePaddle();
+		InitializePostProcessor();
 	}
 
 	void GameScene::Update(float deltaTime)
 	{
 		paddle->update(deltaTime);
 		ball->Update(deltaTime);
+		postProcesor->Update(deltaTime);
 	}
 	void GameScene::Draw()
 	{
+		postProcesor->BeginRender();
 		quadBatch->Draw();
 		paddle->Draw();
 		ball->Draw();
+		postProcesor->EndRender();
+		postProcesor->Draw();
 	}
 	void GameScene::InitializeCamera()
 	{
@@ -106,5 +111,9 @@ namespace Game {
 	void GameScene::InitializeBall()
 	{
 		ball = std::make_unique<Game::Ball>(*physicsManager, CreateBallProgram(camera), vec3{ 500.f,500.f, -1.f }, 30.f, 280.f, glm::normalize(vec3{ 0.1f, +0.9f,0.f }));
+	}
+	void GameScene::InitializePostProcessor()
+	{
+		postProcesor = std::make_unique<Game::PostProcessor>(1920, 1080);
 	}
 }

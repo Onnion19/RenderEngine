@@ -31,6 +31,7 @@ namespace Renderer::GL {
 		void SetUniform1i(std::string_view name, int value) const;
 
 		void SetUniformMatrix4(std::string_view name, const mat4& value);
+		GlProgramId GetId()const;
 	private:
 		GlProgramId id;
 	};

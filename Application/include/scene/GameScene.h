@@ -8,6 +8,7 @@
 #include "GameObject/Ball.h"
 #include "GameObject/Paddle.h"
 #include "GameObject/Block.h"
+#include "GameObject/PostProcessActor.h"
 namespace Game {
 
 	class GameScene : public BaseScene {
@@ -20,6 +21,7 @@ namespace Game {
 		void InitializeBlocks();
 		void InitializePaddle();
 		void InitializeBall();
+		void InitializePostProcessor();
 	private: 
 		// Type definitions
 		using VerticeTy = Renderer::Geometry::Point2D;
@@ -34,5 +36,6 @@ namespace Game {
 		std::unique_ptr<QuadBatcher> quadBatch;
 		std::unique_ptr<Game::Ball> ball;
 		std::unique_ptr<Game::Paddle> paddle;
+		std::unique_ptr<Game::PostProcessor> postProcesor;
 	};
 }

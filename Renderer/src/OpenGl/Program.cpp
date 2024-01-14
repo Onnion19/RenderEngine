@@ -64,3 +64,8 @@ void Renderer::GL::Program::SetUniformMatrix4(std::string_view name, const mat4&
 	RenderAssert(uniformPos > -1, "Trying to sent an invalid uniform for shader");
 	glUniformMatrix4fv(uniformPos, 1, false, glm::value_ptr(value));
 }
+
+GlProgramId Renderer::GL::Program::GetId()const
+{
+	return id;
+}
