@@ -19,7 +19,6 @@ namespace Game
 			mruObject.direction = glm::reflect(mruObject.direction, normal);
 			mruObject.speed *= 1.05f;
 			});
-
 		InitializeVAO();
 	}
 
@@ -46,6 +45,12 @@ namespace Game
 		else if (transform.position.x > 1920.f - radius)
 		{
 			mruObject.direction = glm::reflect(mruObject.direction, vec3{ -1.f,0.f, 0.f });
+		}
+		else if (transform.position.y < -radius*2.15f)
+		{
+			// Game Over
+			mruObject.direction *= -1;
+			transform.position.y = 160.f;
 		}
 	}
 
