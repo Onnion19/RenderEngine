@@ -11,14 +11,6 @@
 namespace Game {
 
 	class GameScene : public BaseScene {
-		static constexpr auto levelPath = "Assets/level.blocks";
-		static constexpr auto blocksTexturePath = "Assets/Textures/Block.png";
-
-		static constexpr auto blocksVertexShader = "Assets/Shaders/DefaultShader.vert";
-		static constexpr auto blocksFragmentShader = "Assets/Shaders/DefaultShader.frag";
-		static constexpr auto ballVertexShader = "Assets/Shaders/BallShader.vert";
-		static constexpr auto ballfragmentShader = "Assets/Shaders/BallShader.frag";
-
 	public: 
 		GameScene(Physics::PhysicsManager& p_manager, Renderer::Input::InputManager& i_manager);
 		void Update(float deltaTime);

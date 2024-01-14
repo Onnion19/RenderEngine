@@ -17,8 +17,7 @@ namespace Game
 		physicsManager->RegisterCollider(collider);
 		collider.RegisterOnCollideCallback([this, radius](const vec3& normal) {
 			mruObject.direction = glm::reflect(mruObject.direction, normal);
-			mruObject.speed *= 1.1f;
-
+			mruObject.speed *= 1.05f;
 			});
 
 		InitializeVAO();

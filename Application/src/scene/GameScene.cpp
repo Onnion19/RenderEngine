@@ -2,13 +2,19 @@
 #include "Core/Settings.h"
 #include "scene/BlocksBuilder.h"
 
-
 namespace {
+	constexpr auto levelPath = "Assets/level.blocks";
+	constexpr auto blocksTexturePath = "Assets/Textures/Block.png";
+
+	constexpr auto blocksVertexShader = "Assets/Shaders/DefaultShader.vert";
+	constexpr auto blocksFragmentShader = "Assets/Shaders/DefaultShader.frag";
+	constexpr auto ballVertexShader = "Assets/Shaders/BallShader.vert";
+	constexpr auto ballfragmentShader = "Assets/Shaders/BallShader.frag";
 	Renderer::GL::Program CreateBatchProgram(auto& camera)
 	{
 		// Takes in the camera cause the projection is always constant
-		std::filesystem::path vertex{ "Assets/Shaders/DefaultShader.vert" };
-		std::filesystem::path fragment{ "Assets/Shaders/DefaultShader.frag" };
+		std::filesystem::path vertex{ blocksVertexShader };
+		std::filesystem::path fragment{ blocksFragmentShader };
 		Renderer::GL::Shader vs(vertex, OpenGLUtils::Shader::Type::VERTEX);
 		Renderer::GL::Shader fs(fragment, OpenGLUtils::Shader::Type::FRAGMENT);
 		Renderer::GL::Program program{ vs, fs };
@@ -24,8 +30,8 @@ namespace {
 	Renderer::GL::Program CreateBallProgram(auto& camera)
 	{
 		// Takes in the camera cause the projection is always constant
-		std::filesystem::path vertex{ "Assets/Shaders/BallShader.vert" };
-		std::filesystem::path fragment{ "Assets/Shaders/BallShader.frag" };
+		std::filesystem::path vertex{ ballVertexShader };
+		std::filesystem::path fragment{ ballfragmentShader };
 		Renderer::GL::Shader vs(vertex, OpenGLUtils::Shader::Type::VERTEX);
 		Renderer::GL::Shader fs(fragment, OpenGLUtils::Shader::Type::FRAGMENT);
 		Renderer::GL::Program program{ vs, fs };
@@ -67,11 +73,11 @@ namespace Game {
 	void GameScene::InitializeBlocks()
 	{
 		// Load required textures
-		auto blockTexture = ImageLoader::LoadTexture("Assets/Textures/Block.png");
+		auto blockTexture = ImageLoader::LoadTexture(blocksTexturePath);
 		RenderAssert(blockTexture, blockTexture.error().c_str());
 
 		// Load blocks information from level file
-		auto generatedBlocks = Game::BlockBuilder::BuildBlocks(*physicsManager, "Assets/level.blocks", vec3{170.f, 50.f, 0.f}, vec3{90.f, SCR_HEIGHT * 0.9f, -1.f}, vec3{10.f, 10.f, 0.f});
+		auto generatedBlocks = Game::BlockBuilder::BuildBlocks(*physicsManager, levelPath, vec3{ 170.f, 50.f, 0.f }, vec3{ 90.f, SCR_HEIGHT * 0.9f, -1.f }, vec3{ 10.f, 10.f, 0.f });
 		RenderAssert(generatedBlocks, generatedBlocks.error().c_str());
 
 		blocks = std::move(generatedBlocks.value());
@@ -79,7 +85,7 @@ namespace Game {
 		auto defaultProgram = CreateBatchProgram(camera);
 
 		// Add blocks to batcher tool
-		quadBatch = std::make_unique< QuadBatcher>( defaultProgram, blockTexture.value() );
+		quadBatch = std::make_unique< QuadBatcher>(defaultProgram, blockTexture.value());
 		for (auto& block : blocks)
 		{
 			// Add the quads to batch

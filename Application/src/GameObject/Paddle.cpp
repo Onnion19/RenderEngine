@@ -1,7 +1,7 @@
 #include "GameObject/Paddle.h"
 #include "Input/InputManager.h"
 #include "Physics/PhysicsManager.h"
-
+#include "Audio/SoundEngine.h"
 
 namespace Game
 {
@@ -20,6 +20,9 @@ namespace Game
 	void Paddle::Init(Renderer::Input::InputManager& inputManager, Physics::PhysicsManager& physicsManager)
 	{
 		physicsManager.RegisterCollider(collider);
+		collider.RegisterOnCollideCallback([](const auto&) {
+			Audio::AudioEngine::PlaySound("Assets/Music/PaddleHit.wav");
+			});
 
 		auto moveLeftLambda = [this](const Renderer::Input::KeyInfo&)
 			{

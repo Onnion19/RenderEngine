@@ -1,5 +1,6 @@
 #include "GameObject/Block.h"
 #include "Physics/PhysicsManager.h"
+#include "Audio/SoundEngine.h"
 
 Game::Block::Block(Physics::PhysicsManager& manager, const vec3 position, const vec3& size)
 	: quad(Core::Transform{ position, vec3 {0.f}, size })
@@ -8,6 +9,7 @@ Game::Block::Block(Physics::PhysicsManager& manager, const vec3 position, const 
 	manager.RegisterCollider(collider);
 
 	collider.RegisterOnCollideCallback([&](const vec3&) {
+		Audio::AudioEngine::PlaySound("Assets/Music/BlockHit.mp3");
 		manager.UnregisterCollider(collider);
 	});
 }

@@ -41,12 +41,12 @@ project "Renderer"
 				
 		includedirs{"%{prj.name}./include" , "%{prj.name}./src" , "./thirdparty/include" , "./thirdparty/glm/glm"}
 		libdirs {"thirdparty/libs/"}
-		links {"glfw3"}
+		links {"glfw3","irrKlang"}
 		
 		postbuildcommands {
 			"{MKDIR} ../../bin/output/%{cfg.buildcfg}/Test/",
 			"{COPYFILE} ../../bin/output/%{cfg.buildcfg}/%{prj.name}.lib  ../../bin/output/%{cfg.buildcfg}/Test/",
-			"{echo} Renderer Lib copied"
+			"{echo} Renderer Lib"
 		}
 		
 project "Application"
@@ -69,7 +69,9 @@ project "Application"
 		postbuildcommands {
 			"{COPYDIR} ../../Assets/  ../../build/%{prj.name}//Assets/",
 			"{COPYDIR} ../../Assets/ ../../bin/%{prj.name}//Assets/",
-			"{echo} Copied Assets"
+			"{COPYDIR} ../../thirdparty/libs/Dll ../../bin/%{prj.name}/",
+			"{COPYDIR} ../../thirdparty/libs/Dll ../../build/%{prj.name}/",
+			"{echo} Copied Assets and dll"
 		}
 
 project "GTest"

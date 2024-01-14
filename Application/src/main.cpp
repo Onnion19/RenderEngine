@@ -8,6 +8,7 @@
 #include "Physics/PhysicsManager.h"
 #include "Utils/FrameTimer.h"
 #include "scene/GameScene.h"
+#include "Audio/SoundEngine.h"
 #include <thread>
 
 
@@ -20,6 +21,7 @@ int main()
 	RenderAssert(window.Valid(), "Failed to create GLFW window");
 	auto closeAppToken = context.GetInputManager()->RegisterEvent([&](const auto&) { closeApp = true; }, Renderer::Input::KeyboardCode::Q, Renderer::Input::ButtonStatus::UP);
 
+	Audio::AudioEngine::PlayAudio("Assets/Music/breakout.mp3", true);
 	Physics::PhysicsManager physicsManager;
 
 	Game::GameScene scene{ physicsManager, *context.GetInputManager() };
