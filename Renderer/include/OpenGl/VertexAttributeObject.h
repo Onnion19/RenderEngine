@@ -73,13 +73,15 @@ namespace Renderer::GL {
 	template<typename T>
 	void Renderer::GL::VertexAtributeObject::EnableAndDefineAttributePointer(T&& properties)
 	{
+
+		auto ofset = properties.offset;
 		glVertexAttribPointer(
 			properties.attributeIndex,
 			properties.attributeSize,
 			OpenGLUtils::EnumToGLEnum(properties.elementType),
 			properties.normalized,
 			properties.stride,
-			reinterpret_cast<const void*>(properties.offset));
+			reinterpret_cast<const void*>(ofset));
 		Enable(properties.attributeIndex);
 	}
 }

@@ -4,6 +4,7 @@
 #include <iterator>
 #include <array>
 #include <vector>
+#include <ranges>
 
 Renderer::GL::BasicQuad::BasicQuad(const ::Core::Transform& t, const Renderer::Type::ColorRGBA& color)
 	: _transform(t), quadColor(color)
@@ -30,8 +31,12 @@ std::vector<Renderer::GL::BasicQuad::VBOTy> Renderer::GL::BasicQuad::GetVBOData(
 	data.reserve(4);
 	auto vertices = GetVertices();
 	auto color = GetColor();
-	std::transform(vertices.begin(), vertices.end(), std::back_inserter(data), [&](const Geometry::Point2D& vertice) -> VBOTy {return { vertice, color }; });
+
+	auto zipFunc = [=](auto vertex, auto uv) -> VBOTy { return { vertex, uv, color }; };
+
+	auto zip = std::views::zip_transform(zipFunc, vertices, Geometry::NormalQuad::QuadUV);
+	std::transform(zip.begin(), zip.end(), std::back_inserter(data), [&](auto tuple) -> VBOTy {return tuple; });
 
 	return data;
 }
-	
+

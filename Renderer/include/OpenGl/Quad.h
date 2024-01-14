@@ -9,7 +9,7 @@ namespace Renderer::GL {
 
 	class BasicQuad {
 	public:
-		using VBOTy = std::tuple<Renderer::Geometry::Point2D, Renderer::Type::RawColor>;
+		using VBOTy = std::tuple<Renderer::Geometry::Point2D, Renderer::Geometry::UVCoordinates, Renderer::Type::RawColor>;
 
 		BasicQuad(const ::Core::Transform& transform, const Renderer::Type::ColorRGBA& color = Renderer::Type::WHITE);
 		std::array<Geometry::Point2D, 4> GetVertices()const;

@@ -49,6 +49,14 @@ void Renderer::GL::Program::SetUniform1(std::string_view name, float value) cons
 	glUniform1f(glGetUniformLocation(id, name.data()), value);
 }
 
+void Renderer::GL::Program::SetUniform1i(std::string_view name, int value) const
+{
+	UseProgram();
+	auto uniformPos = glGetUniformLocation(id, name.data());
+	RenderAssert(uniformPos > -1, "Trying to sent an invalid uniform for shader");
+	glUniform1i(uniformPos, value);
+}
+
 void Renderer::GL::Program::SetUniformMatrix4(std::string_view name, const mat4& value)
 {
 	UseProgram();

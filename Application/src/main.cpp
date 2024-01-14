@@ -65,12 +65,27 @@ Renderer::GL::Program CreateDefaultProgram(const auto& camera)
 	Renderer::GL::Shader vs(vertex, OpenGLUtils::Shader::Type::VERTEX);
 	Renderer::GL::Shader fs(fragment, OpenGLUtils::Shader::Type::FRAGMENT);
 	Renderer::GL::Program program{ vs, fs };
+	//program.SetUniform1i("ourTexture", 0);
 	program.SetUniformMatrix4("model", glm::identity<mat4>());
 	program.SetUniformMatrix4("projection", camera.GetProjectionMatrix());
 
 	return program;
 }
 
+
+Renderer::GL::Program CreateBallProgram(const auto& camera)
+{
+	// Takes in the camera cause the projection is always constant
+	std::filesystem::path vertex{ "Assets/Shaders/BallShader.vert" };
+	std::filesystem::path fragment{ "Assets/Shaders/BallShader.frag" };
+	Renderer::GL::Shader vs(vertex, OpenGLUtils::Shader::Type::VERTEX);
+	Renderer::GL::Shader fs(fragment, OpenGLUtils::Shader::Type::FRAGMENT);
+	Renderer::GL::Program program{ vs, fs };
+	program.SetUniformMatrix4("model", glm::identity<mat4>());
+	program.SetUniformMatrix4("projection", camera.GetProjectionMatrix());
+
+	return program;
+}
 
 constexpr float targetFrameTime = 16.666f;//60fps
 
@@ -97,8 +112,19 @@ int main()
 		return -1;
 	}
 
+	Game::Ball ball(physicsManager, CreateBallProgram(camera), vec3{ 500.f,500.f, -1.f }, 30.f, 280.f, glm::normalize(vec3{ 0.1f, +0.9f,0.f })); 
+	Game::Paddle paddle(*context.GetInputManager(), physicsManager, vec3{ SCR_WIDTH / 2.f, 15.f, -1.f }, 150.f, 360.f);
+
 	auto defaultProgram = CreateDefaultProgram(camera);
-	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Type::RawColor > batch{ defaultProgram };
+	auto blockTexture = ImageLoader::LoadTexture("Assets/Textures/Block.png");
+
+	if (!blockTexture)
+	{
+		std::cout << blockTexture.error() << std::endl;
+		return -1;
+	}
+	Renderer::GL::TextureData tdata = *blockTexture;
+	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Geometry::UVCoordinates, Renderer::Type::RawColor> batch{ defaultProgram, Renderer::GL::Texture{tdata} };
 	for (auto& block : blocks.value())
 	{
 		auto id = batch.AddQuad(block.getVBOData());
@@ -106,10 +132,6 @@ int main()
 	}
 	batch.SendQuadDataToGPU();
 
-
-
-	Game::Ball ball(physicsManager, CreateDefaultProgram(camera), vec3{ 500.f,500.f, -1.f }, 30.f, 280.f, glm::normalize(vec3{ 0.1f, +0.9f,0.f }));
-	Game::Paddle paddle(*context.GetInputManager(), physicsManager, vec3{ SCR_WIDTH / 2.f, 15.f, -1.f }, 150.f, 360.f);
 	Timers::FrameTimer frameTimer;
 	float deltaTime = 0;
 	while (!closeApp)

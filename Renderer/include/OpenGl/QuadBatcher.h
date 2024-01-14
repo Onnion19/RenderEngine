@@ -5,6 +5,7 @@
 #include "OpenGl/VertexAttributeObject.h"
 #include "OpenGl/Program.h"
 #include "OpenGl/Camera.h"
+#include "OpenGl/TextureLoader.h"
 #include "Geometry/BasicShapes.h"
 namespace Renderer::GL {
 
@@ -32,7 +33,7 @@ namespace Renderer::GL {
 	public:
 		using VertexData = std::tuple<VBOTypes...>;
 
-		QuadBatcher(Program shader) :vao(), vbo(OpenGLUtils::Buffer::BufferType::ARRAY), ibo(), shaderProgram(shader) {
+		QuadBatcher(Program shader, Texture texture) :vao(), vbo(OpenGLUtils::Buffer::BufferType::ARRAY), ibo(), shaderProgram(shader), texture(texture) {
 			InitializeVAO();
 		}
 
@@ -76,6 +77,7 @@ namespace Renderer::GL {
 			shaderProgram.SetUniformMatrix4("view", camera.GetCameraViewMatrix());
 
 			HandleDirtyFlag();
+			texture.Bind();
 			ibo.Bind();
 			vao.Bind();
 			const auto gltype = OpenGLUtils::EnumToGLEnum(OpenGLUtils::Buffer::GLType::UNSIGNED_INT);
@@ -89,8 +91,10 @@ namespace Renderer::GL {
 			vbo.Bind();
 			ibo.Bind();
 			Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Renderer::Geometry::Point2D> position{ 0 ,2, OpenGLUtils::Buffer::GLType::FLOAT, false };
-			Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Renderer::Type::RawColor> color{ 1,4, OpenGLUtils::Buffer::GLType::FLOAT, false };
+			Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Renderer::Geometry::UVCoordinates > uvs{ 1,2, OpenGLUtils::Buffer::GLType::FLOAT, false };
+			Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Renderer::Type::RawColor> color{ 2,4, OpenGLUtils::Buffer::GLType::FLOAT, false };
 			vao.EnableAndDefineAttributePointer(position);
+			vao.EnableAndDefineAttributePointer(uvs);
 			vao.EnableAndDefineAttributePointer(color);
 			vao.Unbind();
 		}
@@ -126,6 +130,7 @@ namespace Renderer::GL {
 		OpenGlBuffer<VBOTypes...> vbo;
 		IndexBuffer ibo;
 		Program shaderProgram;
+		Texture texture;
 		std::vector<bool> quadStatus;
 		bool dirty = true;
 	};

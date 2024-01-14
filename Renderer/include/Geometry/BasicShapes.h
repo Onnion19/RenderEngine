@@ -11,9 +11,12 @@ namespace Core {
 namespace Renderer::Geometry
 {
 
-
-	struct Point2Dc { float x; float y; };
 	using Point2D = vec2;
+
+	struct UVCoordinates
+	{
+		float x, y;
+	};
 
 	struct Direction {
 		Direction() = default;
@@ -65,10 +68,19 @@ namespace Renderer::Geometry
 			vec2{0.5f, -0.5f},  //BR
 			vec2{-0.5f, -0.5f} //BL
 		};
+
 		//Quad Indices
 		constexpr std::array<uint8, 6> QuadIndices{
 			2,1,0,
 			0,3,2
+		};
+
+		//UV Coordinates
+		constexpr std::array<UVCoordinates, 4> QuadUV{
+			UVCoordinates{0,1}, //TL
+			UVCoordinates{1,1},	//TR
+			UVCoordinates{1,0}, //BR
+			UVCoordinates{0,0}	//BL
 		};
 	}
 

@@ -26,8 +26,8 @@ namespace Game
 
 	struct PaddleRender {
 	private:
-		constexpr static auto vertexShaderPath = "Assets/Shaders/DefaultShader.vert";
-		constexpr static auto fragmentShaderPath = "Assets/Shaders/DefaultShader.frag";
+		constexpr static auto vertexShaderPath = "Assets/Shaders/BallShader.vert";
+		constexpr static auto fragmentShaderPath = "Assets/Shaders/BallShader.frag";
 	public:
 		Renderer::GL::IndexBuffer ibo{};
 		Renderer::GL::VertexAtributeObject vao{};
@@ -43,7 +43,7 @@ namespace Game
 			, fragmentShader(std::filesystem::path{ fragmentShaderPath }, OpenGLUtils::Shader::Type::FRAGMENT)
 			, program(vertexShader, fragmentShader)
 		{
-			SetBuffers();
+			SetBuffers(); 
 		}
 		void SetBuffers()
 		{
