@@ -22,6 +22,7 @@ namespace Game {
 		void RegisterOnCollideCallback(Physics::Collider::CollisionCallback&& callback);
 		auto getVBOData() const { return quad.GetVBOData(); }
 		
+		const vec3& GetPosition() const { return quad.GetTransform().position; }
 		void SetId(uint32 id);
 		uint32 GetId()const;
 	private:

@@ -49,16 +49,18 @@ namespace Game {
 		: BaseScene(p_manager, i_manager)
 	{
 		InitializeCamera();
-		InitializeBlocks();
-		InitializeBall();
 		InitializePaddle();
+		InitializeBall();
+		InitializeBlocks();
 		InitializePostProcessor();
 	}
 
 	void GameScene::Update(float deltaTime)
 	{
-		paddle->update(deltaTime);
+		if (powerUp)
+			powerUp->Update(deltaTime);
 		ball->Update(deltaTime);
+		paddle->update(deltaTime);
 		postProcesor->Update(deltaTime);
 	}
 	void GameScene::Draw()
@@ -66,6 +68,8 @@ namespace Game {
 		postProcesor->BeginRender();
 		quadBatch->Draw();
 		paddle->Draw();
+		if (powerUp)
+			powerUp->Draw();
 		ball->Draw();
 		postProcesor->EndRender();
 		postProcesor->Draw();
@@ -97,6 +101,17 @@ namespace Game {
 			auto id = quadBatch->AddQuad(block.getVBOData());
 			//Add collision hit callback
 			block.RegisterOnCollideCallback([batch = quadBatch.get(), id](const vec3&) {batch->HideQuad(id); });
+			// Spawn powerup
+			block.RegisterOnCollideCallback([&, pos = block.GetPosition()](const vec3&) {
+				if (!powerUp)
+				{
+					powerUp = std::make_unique<Game::PowerUp>(postProcesor.get(), *paddle, camera, pos, 130.f);
+				}
+				else if (!powerUp->IsActive())
+				{
+					powerUp->ActivatePowerUP(pos);
+				}
+				});
 		}
 		// Finish to setup batching
 		quadBatch->SendQuadDataToGPU();

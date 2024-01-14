@@ -13,7 +13,7 @@ namespace Game {
 		void EndRender();
 		void Draw();
 		void Update(float deltaTime);
-
+		void ActivateEffect(float time);
 	private: 
 		void initRenderData();
 
@@ -27,5 +27,7 @@ namespace Game {
 		Renderer::GL::Texture texture;
 		unsigned int Width, Height;
 		bool Confuse, Chaos, Shake;
+
+		float effectTimer = -1.f;
 	};
 }

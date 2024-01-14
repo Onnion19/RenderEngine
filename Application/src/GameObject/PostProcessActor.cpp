@@ -68,7 +68,7 @@ namespace Game {
 			2.0f / 16.0f, 4.0f / 16.0f, 2.0f / 16.0f,
 			1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f
 		};
-		glUniform1fv(glGetUniformLocation(postProcessingShader.GetId() , "blur_kernel"), 9, blur_kernel);
+		glUniform1fv(glGetUniformLocation(postProcessingShader.GetId(), "blur_kernel"), 9, blur_kernel);
 	}
 
 	void PostProcessor::BeginRender()
@@ -87,10 +87,16 @@ namespace Game {
 
 	void PostProcessor::Update(float deltaTime)
 	{
+
 		postProcessingShader.SetUniform1("time", deltaTime);
-		postProcessingShader.SetUniform1i("confuse", 0);
-		postProcessingShader.SetUniform1i("chaos", 0);
-		postProcessingShader.SetUniform1i("shake", 1);
+		postProcessingShader.SetUniform1i("confuse", (effectTimer > 0) ? true : false);
+		effectTimer -= deltaTime/1000;
+
+	}
+
+	void PostProcessor::ActivateEffect(float time)
+	{
+		effectTimer = time;
 	}
 
 	void PostProcessor::Draw()

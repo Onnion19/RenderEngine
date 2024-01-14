@@ -12,5 +12,6 @@ namespace Physics
 	{
 
 		HitResult Solve(const Collider& a, const Collider& b);
+
 	}
 }

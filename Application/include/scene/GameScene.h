@@ -8,6 +8,7 @@
 #include "GameObject/Ball.h"
 #include "GameObject/Paddle.h"
 #include "GameObject/Block.h"
+#include "GameObject/Powerup.h"
 #include "GameObject/PostProcessActor.h"
 namespace Game {
 
@@ -36,6 +37,7 @@ namespace Game {
 		std::unique_ptr<QuadBatcher> quadBatch;
 		std::unique_ptr<Game::Ball> ball;
 		std::unique_ptr<Game::Paddle> paddle;
+		std::unique_ptr <Game::PowerUp> powerUp;
 		std::unique_ptr<Game::PostProcessor> postProcesor;
 	};
 }

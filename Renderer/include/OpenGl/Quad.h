@@ -16,9 +16,6 @@ namespace Renderer::GL {
 		void SetColor(const Renderer::Type::ColorRGBA& color);
 		const Renderer::Type::ColorRGBA& GetColor()const;
 		std::vector<VBOTy> GetVBOData()const;
-
-
-
 		::Core::Transform& GetTransform() { return _transform; }
 		const ::Core::Transform& GetTransform() const { return _transform; }
 	private:
