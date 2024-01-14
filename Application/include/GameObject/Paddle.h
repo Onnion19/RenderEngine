@@ -37,13 +37,15 @@ namespace Game
 		Renderer::GL::Program program;
 		const Core::Transform& transform;
 
-		PaddleRender(const Core::Transform& trans)
+		PaddleRender(const Core::Transform& trans, auto& camera)
 			: transform(trans)
 			, vertexShader(std::filesystem::path{ vertexShaderPath }, OpenGLUtils::Shader::Type::VERTEX)
 			, fragmentShader(std::filesystem::path{ fragmentShaderPath }, OpenGLUtils::Shader::Type::FRAGMENT)
 			, program(vertexShader, fragmentShader)
 		{
 			SetBuffers(); 
+			program.SetUniformMatrix4("view", camera.GetViewMatrix());
+			program.SetUniformMatrix4("projection", camera.GetProjectionMatrix());
 		}
 		void SetBuffers()
 		{
@@ -72,11 +74,9 @@ namespace Game
 			vbo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::STATIC_DRAW);
 			ibo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::STATIC_DRAW);
 		}
-		void Draw(auto& camera)
+		void Draw()
 		{
 			program.UseProgram();
-			program.SetUniformMatrix4("view", camera.GetCameraViewMatrix());
-			program.SetUniformMatrix4("projection", camera.GetProjectionMatrix());
 			program.SetUniformMatrix4("model", static_cast<mat4>(transform));
 			ibo.Bind();
 			vao.Bind();
@@ -91,12 +91,18 @@ namespace Game
 	class Paddle {
 
 	public:
-		Paddle(Renderer::Input::InputManager& inputManager, Physics::PhysicsManager& physicsManager, const vec3& position, float length, float speed);
-		void update(float deltatime);
-		void Draw(auto& camera)
+		Paddle(Renderer::Input::InputManager& inputManager, Physics::PhysicsManager& physicsManager, auto& camera, const vec3& position, float length, float speed)
+			: transform({ position, vec3{},vec3{length, 45.f, 1.f} })
+			, renderer(transform, camera)
+			, collider(Renderer::Geometry::Rectangle(transform))
+			, movementData({ vec3{}, speed })
 		{
-			renderer.Draw(camera);
+			Init(inputManager, physicsManager);
 		}
+		void update(float deltatime);
+		void Draw();
+	private: 
+		void Init(Renderer::Input::InputManager& inputManager, Physics::PhysicsManager& physicsManager);
 	private:
 		Renderer::Core::TokenOwner inputToken;
 		Core::Transform transform;

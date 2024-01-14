@@ -2,7 +2,6 @@
 
 #include <vector>
 #include "Physics/Collider.h"
-#include "Physics/PhysicsSolver.h"
 
 namespace Physics {
 

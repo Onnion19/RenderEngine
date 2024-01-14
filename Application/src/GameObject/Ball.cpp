@@ -17,7 +17,7 @@ namespace Game
 		physicsManager->RegisterCollider(collider);
 		collider.RegisterOnCollideCallback([this, radius](const vec3& normal) {
 			mruObject.direction = glm::reflect(mruObject.direction, normal);
-			mruObject.speed *= 1.02f;
+			mruObject.speed *= 1.1f;
 
 			});
 
@@ -48,6 +48,25 @@ namespace Game
 		{
 			mruObject.direction = glm::reflect(mruObject.direction, vec3{ -1.f,0.f, 0.f });
 		}
+	}
+
+	void Ball::Draw()
+	{
+		using VBOType = decltype(vbo)::bufferTy;
+		std::vector<VBOType> vboData;
+		vbo.clear();
+		vboData.reserve(4);
+		std::transform(Renderer::Geometry::NormalQuad::QuadVertices.begin(), Renderer::Geometry::NormalQuad::QuadVertices.end(), std::back_inserter(vboData), [=](const vec2& vertice) ->  VBOType {return { vertice, {transform.position.x, transform.position.y, radius} }; });
+		vbo.Insert(vboData);
+		vbo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::DYNAMIC_DRAW);
+
+		program.UseProgram();
+		program.SetUniformMatrix4("model", static_cast<mat4>(transform));
+		ibo.Bind();
+		vao.Bind();
+		const auto gltype = OpenGLUtils::EnumToGLEnum(OpenGLUtils::Buffer::GLType::UNSIGNED_INT);
+		glDrawElements(GL_TRIANGLES, static_cast<uint32>(ibo.size()), gltype, nullptr);
+		vao.Unbind();
 	}
 
 

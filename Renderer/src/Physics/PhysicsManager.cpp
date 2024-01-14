@@ -1,6 +1,7 @@
 #include "Physics/PhysicsManager.h"
-#include <algorithm>
+#include "Physics/PhysicsSolver.h"
 #include "Core/RenderAssert.h"
+#include <algorithm>
 
 namespace Physics {
 

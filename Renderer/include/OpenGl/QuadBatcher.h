@@ -70,11 +70,9 @@ namespace Renderer::GL {
 			dirty = true;
 		}
 
-		void Draw(auto& camera)
+		void Draw()
 		{
 			shaderProgram.UseProgram();
-			shaderProgram.SetUniformMatrix4("view", camera.GetCameraViewMatrix());
-
 			HandleDirtyFlag();
 			texture.Bind();
 			vao.Bind();
