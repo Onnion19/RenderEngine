@@ -36,7 +36,7 @@ namespace Renderer::Input {
 		Z = Bit<26>::value,
 		Shift = Bit<27>::value,
 		Alt = Bit<28>::value,
-		Cntrl = Bit<29>::value,
+		Cntrl = Bit<29>::value
 	};
 
 	template<class ... KeyboardCodes>

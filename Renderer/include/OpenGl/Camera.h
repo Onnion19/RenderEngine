@@ -22,7 +22,7 @@ namespace Renderer::GL {
 			dirtyTransform = true;
 		}
 
-		mat4 GetCameraViewMatrix()
+		mat4 GetViewMatrix()
 		{
 			if(dirtyTransform)
 				viewMatrix = static_cast<mat4>(transform);
@@ -35,7 +35,7 @@ namespace Renderer::GL {
 		}
 
 		std::tuple<mat4, mat4> GetCameraAndProjectionMatrices() {
-			return { GetCameraViewMatrix(), GetProjectionMatrix() };
+			return { GetViewMatrix(), GetProjectionMatrix() };
 		}
 
 	private:

@@ -18,8 +18,8 @@ namespace Renderer::Geometry {
 	{}
 
 	Rectangle::Rectangle(const::Core::Transform& transform) noexcept
-		: topLeft(transform.position.x - transform.size.x/2.f, transform.position.y + transform.size.y/2.f)
-		, botRight(transform.position.x + transform.size.x/2.f, transform.position.y - transform.size.y/2.f)
+		: topLeft(transform.position.x - transform.size.x / 2.f, transform.position.y + transform.size.y / 2.f)
+		, botRight(transform.position.x + transform.size.x / 2.f, transform.position.y - transform.size.y / 2.f)
 	{}
 
 	Point2D Rectangle::GetCenter() const
@@ -37,8 +37,19 @@ namespace Renderer::Geometry {
 	{
 		const vec2 topRight{ botRight.x, topLeft.y };
 		const vec2 botLeft{ topLeft.x, botRight.y };
-		return { topLeft, topRight , botRight, botLeft};
+		return { topLeft, topRight , botRight, botLeft };
 	}
+
+	std::tuple<float, float> Rectangle::GetWidthHeight() const noexcept
+	{
+		return {
+			botRight.x - topLeft.x,
+			topLeft.y - botRight.y
+		};
+	}
+
+	Circle::Circle(const vec2& center, float radius) noexcept : center(center), radius(radius)
+	{}
 
 }
 

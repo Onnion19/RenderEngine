@@ -1,140 +1,60 @@
 
+#include "Core/Settings.h"
 #include "Context/GLFWContext.h"
 #include <iostream>
 #include <functional>
 #include "Window/Window.h"
 #include "Input/InputManager.h"
-#include "OpenGl/Buffer.h"
-#include "OpenGl/Camera.h"
-#include "OpenGl/QuadBatcher.h"
-#include "OpenGl/Program.h"
-#include "OpenGl/VertexAttributeObject.h"
-#include "Type/Transform.h"
-#include "Type/Color.h"
-
-#include "scene/BlocksBuilder.h"
+#include "Physics/PhysicsManager.h"
+#include "Utils/FrameTimer.h"
+#include "scene/GameScene.h"
+#include "Audio/SoundEngine.h"
+#include <thread>
 
 
-
-// settings
-constexpr unsigned int SCR_WIDTH = 1920;
-constexpr unsigned int SCR_HEIGHT = 1080;
-
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"layout (location = 1) in vec3 aColor;\n"
-"out vec3 o_color;\n"
-"uniform mat4 model;\n"
-"uniform mat4 view;\n"
-"uniform mat4 projection;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
-"   o_color = aColor;\n"
-"}\0";
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"in vec3 o_color;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(o_color, 1.0f);\n"
-"}\n\0";
-
-
-
-struct CameraMovement {
-
-	CameraMovement(auto& camera, Renderer::Input::InputManager& manager)
-	{
-		constexpr auto cameraMovement = 10.f;
-		aliveToken = manager.RegisterEvent([&](Renderer::Input::KeyInfo) {
-			camera.Translate(vec3(cameraMovement, 0.f, 0.f));
-			}, Renderer::Input::KeyboardCode::W, Renderer::Input::ButtonStatus::DOWN);
-
-		manager.RegisterEvent(aliveToken, [&](Renderer::Input::KeyInfo) {
-			camera.Translate(vec3(-cameraMovement, 0.f, 0.f));
-			}, Renderer::Input::KeyboardCode::S, Renderer::Input::ButtonStatus::DOWN);
-
-		manager.RegisterEvent(aliveToken, [&](Renderer::Input::KeyInfo) {
-			camera.Translate(vec3(0.f, cameraMovement, 0.f));
-			}, Renderer::Input::KeyboardCode::A, Renderer::Input::ButtonStatus::DOWN);
-
-		manager.RegisterEvent(aliveToken, [&](Renderer::Input::KeyInfo) {
-			camera.Translate(vec3(0.f, -cameraMovement, 0.f));
-			}, Renderer::Input::KeyboardCode::D, Renderer::Input::ButtonStatus::DOWN);
-	}
-
-private:
-	Renderer::Core::TokenOwner aliveToken;
-};
-
-
-Renderer::GL::OrthoCamera GenerateCamera()
-{
-	Renderer::GL::OrthoCamera camera{ SCR_WIDTH,SCR_HEIGHT,0.1f,100.f };
-	camera.Translate(vec3{ 0.f,0.f,-10.f });
-	return camera;
-}
-
-Renderer::GL::Program CreateDefaultProgram(const auto& camera)
-{
-	// Takes in the camera cause the projection is always constant
-	Renderer::GL::Shader vs(std::string_view(vertexShaderSource), OpenGLUtils::Shader::Type::VERTEX);
-	Renderer::GL::Shader fs(std::string_view(fragmentShaderSource), OpenGLUtils::Shader::Type::FRAGMENT);
-	Renderer::GL::Program program{ vs, fs };
-	program.SetUniformMatrix4("model", glm::identity<mat4>());
-	program.SetUniformMatrix4("projection", camera.GetProjectionMatrix());
-
-	return program;
-}
-
-bool close = false;
 int main()
 {
-
-	// glfw: initialize and configure
-	// ------------------------------
+	// Init GLFW context
 	Renderer::GLFW::GLFWContext context;
-	// glfw window creation
-	// --------------------
+	bool closeApp = false;
 	auto window = context.CreateNewWindow(SCR_WIDTH, SCR_HEIGHT, "Renderer");
 	RenderAssert(window.Valid(), "Failed to create GLFW window");
+	auto closeAppToken = context.GetInputManager()->RegisterEvent([&](const auto&) { closeApp = true; }, Renderer::Input::KeyboardCode::Q, Renderer::Input::ButtonStatus::UP);
 
+	Audio::AudioEngine::PlayAudio("Assets/Music/breakout.mp3", true);
+	Physics::PhysicsManager physicsManager;
 
-	auto camera = GenerateCamera();
-	CameraMovement movement{ camera, *context.GetInputManager() };
+	Game::GameScene scene{ physicsManager, *context.GetInputManager() };
 
-
-	auto blocks = Game::BlockBuilder::BuildBlocks("Assets/level.blocks", vec3{ 30.f, 30.f, 0.f }, vec3{ 30.f, 500.f, -1.f }, vec3{ 10.f, 10.f, 0.f });
-
-	if (!blocks)
+	Timers::FrameTimer frameTimer;
+	float deltaTime = 0;
+	while (!closeApp)
 	{
-		std::cout << blocks.error() << std::endl;
-		return -1;
-	}
-
-	auto defaultProgram = CreateDefaultProgram(camera);
-	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Type::RawColor > batch{ defaultProgram };
-	for (const auto& quad : blocks.value())
-	{
-		batch.AddQuad(quad.getVBOData());
-	}
-	batch.SendQuadDataToGPU();
-
-
-	while (!close)
-	{
-		//this is wrong, this will only work for one window. See https://discourse.glfw.org/t/how-to-create-multiple-window/1398/2
 		context.PullInputEvents();
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-			close = true;
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		batch.Draw(camera);
-		// update other events like input handling
 
+		scene.Update(deltaTime);
+		scene.Draw();
+
+		// update other events like input handling
 		glfwSwapBuffers(window.get());
 		glfwPollEvents();
+
+
+		//time properties
+		deltaTime = frameTimer.Tick();
+		// Lock to 60 fps, don't burn the PC :D
+		auto threadWait = targetFrameTime - deltaTime;
+		if (threadWait > 0.f)
+		{
+			std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(threadWait));
+			deltaTime = targetFrameTime;
+		}
+
+
 	}
+
+	//Due to RAII all buffers should be cleaned.
 	return 0;
 }

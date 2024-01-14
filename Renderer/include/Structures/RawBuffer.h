@@ -52,6 +52,10 @@ namespace Renderer {
 		[[nodiscard]] const container& GetContainer() const { return mBufferData; }
 		[[nodiscard]] container& GetContainer() { return mBufferData; }
 
+		void clear() {
+			mBufferData.clear();
+		}
+
 	private:
 		template<int i>
 		[[nodiscard]] auto GetDataByIndice() const { return std::views::elements<i>(mBufferData); }

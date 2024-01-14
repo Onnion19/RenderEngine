@@ -5,29 +5,31 @@
 #include "OpenGl/OpenGLUtils.h"
 
 namespace Renderer::GL {
+	/*
+		Helper to compute the offset of a type T inside a tuple.
 
-
+		:::WARNING::::
+		This implementation is not reliable and might only work under MSVC as
+		I'm trying to get the offset of a tuple assuming that:
+		- std::tuple<T...> is in fact a struct inheritance in reverse order.
+		- This asumption is detail assumption and can change per platform and compiler.
+	*/
 	namespace Internal {
 
 		template<class TupleTy, int i>
 		struct AttributeOffsetRecurisve {
-			static constexpr unsigned value = sizeof(std::tuple_element_t<i, TupleTy>) + AttributeOffsetRecurisve<TupleTy, i - 1>::value;
+			static constexpr unsigned value = sizeof(std::tuple_element_t<std::tuple_size_v<TupleTy> -i, TupleTy>) + AttributeOffsetRecurisve<TupleTy, i - 1>::value;
 		};
 
 		template<class TupleTy>
 		struct AttributeOffsetRecurisve<TupleTy, 0> {
-			static constexpr unsigned value = sizeof(std::tuple_element_t<0, TupleTy>);
+			static constexpr unsigned value = 0;
 		};
 
 		template<class TupleTy, int i>
 		struct AttributeOffset {
-			static_assert(i > 0);
-			static constexpr uint64 value = AttributeOffsetRecurisve<TupleTy, i - 1>::value;
-		};
-
-		template<class TupleTy>
-		struct AttributeOffset<TupleTy, 0> {
-			static constexpr unsigned value = 0;
+			static_assert(std::tuple_size_v<TupleTy> > 0 && i <= std::tuple_size_v<TupleTy>);
+			static constexpr uint64 value = AttributeOffsetRecurisve<TupleTy, std::tuple_size_v<TupleTy> -i - 1>::value;
 		};
 	}
 
@@ -52,7 +54,7 @@ namespace Renderer::GL {
 			static constexpr auto tupleIndex = TupleHelper::Index<AttributeType, BufferType>::value;
 			// not sure about this stride. This is true for tuples with multiple types, but single ones...
 			static constexpr auto stride = sizeof(BufferType);
-			static constexpr auto offset = Internal::AttributeOffset<BufferType, tupleIndex>::value;			
+			static constexpr auto offset = Internal::AttributeOffset<BufferType, tupleIndex>::value;
 		};
 	public:
 		explicit VertexAtributeObject();
@@ -70,14 +72,15 @@ namespace Renderer::GL {
 	template<typename T>
 	void Renderer::GL::VertexAtributeObject::EnableAndDefineAttributePointer(T&& properties)
 	{
-		auto offset = (properties.offset == 0) ? sizeof(float) * 4 : 0;
+
+		auto ofset = properties.offset;
 		glVertexAttribPointer(
 			properties.attributeIndex,
 			properties.attributeSize,
 			OpenGLUtils::EnumToGLEnum(properties.elementType),
 			properties.normalized,
 			properties.stride,
-			reinterpret_cast<const void*>(offset));
+			reinterpret_cast<const void*>(ofset));
 		Enable(properties.attributeIndex);
 	}
 }

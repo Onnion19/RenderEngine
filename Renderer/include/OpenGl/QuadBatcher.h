@@ -5,9 +5,9 @@
 #include "OpenGl/VertexAttributeObject.h"
 #include "OpenGl/Program.h"
 #include "OpenGl/Camera.h"
+#include "OpenGl/TextureLoader.h"
 #include "Geometry/BasicShapes.h"
 namespace Renderer::GL {
-
 	/**
 	*	QUAD BATCHER will use a single draw call to render all provided quads.
 	*	The indice that it will generate for eac quad follows the next pattern
@@ -32,7 +32,7 @@ namespace Renderer::GL {
 	public:
 		using VertexData = std::tuple<VBOTypes...>;
 
-		QuadBatcher(Program shader) :vao(), vbo(OpenGLUtils::Buffer::BufferType::ARRAY), ibo(), shaderProgram(shader) {
+		QuadBatcher(Program shader, TextureData textureData) :vao(), vbo(OpenGLUtils::Buffer::BufferType::ARRAY), ibo(), shaderProgram(shader), texture(textureData) {
 			InitializeVAO();
 		}
 
@@ -70,13 +70,11 @@ namespace Renderer::GL {
 			dirty = true;
 		}
 
-		void Draw(auto& camera)
+		void Draw()
 		{
 			shaderProgram.UseProgram();
-			shaderProgram.SetUniformMatrix4("view", camera.GetCameraViewMatrix());
-
 			HandleDirtyFlag();
-			ibo.Bind();
+			texture.Bind();
 			vao.Bind();
 			const auto gltype = OpenGLUtils::EnumToGLEnum(OpenGLUtils::Buffer::GLType::UNSIGNED_INT);
 			glDrawElements(GL_TRIANGLES, static_cast<uint32>(ibo.size()), gltype, nullptr);
@@ -89,8 +87,10 @@ namespace Renderer::GL {
 			vbo.Bind();
 			ibo.Bind();
 			Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Renderer::Geometry::Point2D> position{ 0 ,2, OpenGLUtils::Buffer::GLType::FLOAT, false };
-			Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Renderer::Type::RawColor> color{ 1,4, OpenGLUtils::Buffer::GLType::FLOAT, false };
+			Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Renderer::Geometry::UVCoordinates > uvs{ 1,2, OpenGLUtils::Buffer::GLType::FLOAT, false };
+			Renderer::GL::VertexAtributeObject::AttributePointer<decltype(vbo)::bufferTy, Renderer::Type::RawColor> color{ 2,4, OpenGLUtils::Buffer::GLType::FLOAT, false };
 			vao.EnableAndDefineAttributePointer(position);
+			vao.EnableAndDefineAttributePointer(uvs);
 			vao.EnableAndDefineAttributePointer(color);
 			vao.Unbind();
 		}
@@ -126,6 +126,7 @@ namespace Renderer::GL {
 		OpenGlBuffer<VBOTypes...> vbo;
 		IndexBuffer ibo;
 		Program shaderProgram;
+		Texture texture;
 		std::vector<bool> quadStatus;
 		bool dirty = true;
 	};

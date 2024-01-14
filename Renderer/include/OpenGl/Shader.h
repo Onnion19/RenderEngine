@@ -13,7 +13,8 @@ namespace Renderer::GL {
 		Shader(std::string_view contents, OpenGLUtils::Shader::Type type);
 		operator GLShaderId()const noexcept;
 	private:
-		std::string ReadShaderFromFile(const std::filesystem::path& filePath);
+		void SetShaderCode(std::string_view contents, OpenGLUtils::Shader::Type type);
+		std::expected<std::string, std::string> ReadShaderFromFile(const std::filesystem::path& filePath);
 		void Compile();
 	private:
 		GLShaderId shaderId;
