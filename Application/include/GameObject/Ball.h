@@ -46,6 +46,8 @@ namespace Game
 
 		// Rendering
 		void InitializeVAO();
+	private:
+		// Struct holding the values for the sdf data to send to the gpu
 		struct SphereSDF {
 			float center_x, center_y, radius;
 		};

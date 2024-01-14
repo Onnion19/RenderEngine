@@ -23,7 +23,7 @@ namespace Physics {
 
 namespace Game
 {
-
+	// This Paddle Render is a complete trash, is working but it requires a good refactor
 	struct PaddleRender {
 	private:
 		constexpr static auto vertexShaderPath = "Assets/Shaders/PaddelShader.vert";
