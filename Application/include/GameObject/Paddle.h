@@ -26,8 +26,8 @@ namespace Game
 
 	struct PaddleRender {
 	private:
-		constexpr static auto vertexShaderPath = "Assets/Shaders/BallShader.vert";
-		constexpr static auto fragmentShaderPath = "Assets/Shaders/BallShader.frag";
+		constexpr static auto vertexShaderPath = "Assets/Shaders/PaddelShader.vert";
+		constexpr static auto fragmentShaderPath = "Assets/Shaders/PaddelShader.frag";
 	public:
 		Renderer::GL::IndexBuffer ibo{};
 		Renderer::GL::VertexAtributeObject vao{};

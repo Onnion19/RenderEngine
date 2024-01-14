@@ -13,11 +13,11 @@ namespace Renderer::GL
 
 	class Texture {
 	public:
-		Texture(TextureData& data);
+		Texture(TextureData data);
 		~Texture();
 		void Bind();
 	private:
 		GLBufferId textureId;
-		TextureData& textureData;
+		TextureData textureData;
 	};
 }

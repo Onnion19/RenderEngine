@@ -7,6 +7,7 @@
 std::expected<Renderer::GL::TextureData, std::string> ImageLoader::LoadTexture(std::string_view path)
 {
 	Renderer::GL::TextureData texture{};
+	stbi_set_flip_vertically_on_load(1);
 	texture.data = stbi_load(path.data(), &texture.width, &texture.heigth, &texture.numChannels, 0);
 
 	if (!texture.data || texture.width <= 0 || texture.heigth <= 0)

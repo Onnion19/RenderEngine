@@ -8,7 +8,6 @@
 #include "OpenGl/TextureLoader.h"
 #include "Geometry/BasicShapes.h"
 namespace Renderer::GL {
-
 	/**
 	*	QUAD BATCHER will use a single draw call to render all provided quads.
 	*	The indice that it will generate for eac quad follows the next pattern
@@ -33,7 +32,7 @@ namespace Renderer::GL {
 	public:
 		using VertexData = std::tuple<VBOTypes...>;
 
-		QuadBatcher(Program shader, Texture texture) :vao(), vbo(OpenGLUtils::Buffer::BufferType::ARRAY), ibo(), shaderProgram(shader), texture(texture) {
+		QuadBatcher(Program shader, TextureData textureData) :vao(), vbo(OpenGLUtils::Buffer::BufferType::ARRAY), ibo(), shaderProgram(shader), texture(textureData) {
 			InitializeVAO();
 		}
 
@@ -78,7 +77,6 @@ namespace Renderer::GL {
 
 			HandleDirtyFlag();
 			texture.Bind();
-			ibo.Bind();
 			vao.Bind();
 			const auto gltype = OpenGLUtils::EnumToGLEnum(OpenGLUtils::Buffer::GLType::UNSIGNED_INT);
 			glDrawElements(GL_TRIANGLES, static_cast<uint32>(ibo.size()), gltype, nullptr);

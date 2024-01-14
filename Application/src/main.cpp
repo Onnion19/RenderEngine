@@ -18,7 +18,6 @@
 #include "GameObject/Paddle.h"
 #include <thread>
 
-
 // settings
 constexpr unsigned int SCR_WIDTH = 1920;
 constexpr unsigned int SCR_HEIGHT = 1080;
@@ -123,8 +122,9 @@ int main()
 		std::cout << blockTexture.error() << std::endl;
 		return -1;
 	}
-	Renderer::GL::TextureData tdata = *blockTexture;
-	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Geometry::UVCoordinates, Renderer::Type::RawColor> batch{ defaultProgram, Renderer::GL::Texture{tdata} };
+
+
+	Renderer::GL::QuadBatcher <Renderer::Geometry::Point2D, Renderer::Geometry::UVCoordinates, Renderer::Type::RawColor> batch{ defaultProgram, blockTexture.value() };
 	for (auto& block : blocks.value())
 	{
 		auto id = batch.AddQuad(block.getVBOData());
@@ -134,6 +134,12 @@ int main()
 
 	Timers::FrameTimer frameTimer;
 	float deltaTime = 0;
+
+
+	auto shader = CreateDefaultProgram(camera);
+
+	Core::Transform transform{ vec3{500.f, 500.f, -1.f} , vec3{}, vec3{400.f, 400.f,1.f} };
+
 	while (!closeApp)
 	{
 		//this is wrong, this will only work for one window. See https://discourse.glfw.org/t/how-to-create-multiple-window/1398/2
@@ -148,12 +154,13 @@ int main()
 		paddle.Draw(camera);
 		ball.Draw(camera);
 
+
 		// update other events like input handling
 		glfwSwapBuffers(window.get());
 		glfwPollEvents();
 
 
-		// time properties
+		//time properties
 		deltaTime = frameTimer.Tick();
 		// Lock to 60 fps, don't burn the PC :D
 		auto threadWait = targetFrameTime - deltaTime;

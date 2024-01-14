@@ -24,6 +24,14 @@ namespace Game
 		void Update(float deltaTime);
 		void Draw(auto& camera) 
 		{
+			using VBOType = decltype(vbo)::bufferTy;
+			std::vector<VBOType> vboData;
+			vbo.clear();
+			vboData.reserve(4);
+			std::transform(Renderer::Geometry::NormalQuad::QuadVertices.begin(), Renderer::Geometry::NormalQuad::QuadVertices.end(), std::back_inserter(vboData), [=](const vec2& vertice) ->  VBOType {return { vertice, {transform.position.x, transform.position.y, radius} }; });
+			vbo.Insert(vboData);
+			vbo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::DYNAMIC_DRAW);
+
 			program.UseProgram();
 			program.SetUniformMatrix4("view", camera.GetCameraViewMatrix());
 			program.SetUniformMatrix4("model", static_cast<mat4>(transform));
@@ -38,6 +46,9 @@ namespace Game
 
 		// Rendering
 		void InitializeVAO();
+		struct SphereSDF {
+			float center_x, center_y, radius;
+		};
 
 	private:
 		Observer<Physics::PhysicsManager> physicsManager;
@@ -48,8 +59,9 @@ namespace Game
 
 		// OpenGl data
 		Renderer::GL::Program program;
-		Renderer::GL::OpenGlBuffer< Renderer::Geometry::Point2D, Renderer::Type::RawColor> vbo;
+		Renderer::GL::OpenGlBuffer< Renderer::Geometry::Point2D, SphereSDF> vbo;
 		Renderer::GL::VertexAtributeObject vao;
 		Renderer::GL::IndexBuffer ibo;
+
 	};
 }

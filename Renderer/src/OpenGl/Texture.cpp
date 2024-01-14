@@ -4,7 +4,7 @@
 #include <iostream>
 
 namespace Renderer::GL {
-Texture::Texture(TextureData& data) : textureData(data)
+Texture::Texture(TextureData data) : textureData(data)
 {
 	glGenTextures(1, &textureId);
 	glBindTexture(GL_TEXTURE_2D, textureId);

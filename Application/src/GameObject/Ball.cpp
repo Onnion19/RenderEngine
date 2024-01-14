@@ -17,7 +17,7 @@ namespace Game
 		physicsManager->RegisterCollider(collider);
 		collider.RegisterOnCollideCallback([this, radius](const vec3& normal) {
 
-			if (mruObject.direction.y <= 0.f || transform.position.y > radius + 15.f)
+			if (mruObject.direction.y < 0.f || transform.position.y > radius/2.f)
 			{
 				mruObject.direction = glm::reflect(mruObject.direction, normal);
 				mruObject.speed *= 1.02f;
@@ -63,7 +63,7 @@ namespace Game
 		vbo.Bind();
 		std::vector<VBOType> vboData;
 		vboData.reserve(4);
-		std::transform(Renderer::Geometry::NormalQuad::QuadVertices.begin(), Renderer::Geometry::NormalQuad::QuadVertices.end(), std::back_inserter(vboData), [](const vec2& vertice) ->  VBOType {return { vertice, Renderer::Type::BLUE }; });
+		std::transform(Renderer::Geometry::NormalQuad::QuadVertices.begin(), Renderer::Geometry::NormalQuad::QuadVertices.end(), std::back_inserter(vboData), [=](const vec2& vertice) ->  VBOType {return { vertice, {transform.position.x, transform.position.y, radius} }; });
 		vbo.Insert(vboData);
 
 		// Build IBO
@@ -73,12 +73,12 @@ namespace Game
 
 		//Build VAO
 		Renderer::GL::VertexAtributeObject::AttributePointer<VBOType, Renderer::Geometry::Point2D> position{ 0 ,2, OpenGLUtils::Buffer::GLType::FLOAT, false };
-		Renderer::GL::VertexAtributeObject::AttributePointer<VBOType, Renderer::Type::RawColor> color{ 1,4, OpenGLUtils::Buffer::GLType::FLOAT, false };
+		Renderer::GL::VertexAtributeObject::AttributePointer<VBOType, SphereSDF> sdfData{ 1,3, OpenGLUtils::Buffer::GLType::FLOAT, false };
 		vao.EnableAndDefineAttributePointer(position);
-		vao.EnableAndDefineAttributePointer(color);
+		vao.EnableAndDefineAttributePointer(sdfData);
 		vao.Unbind();
 
-		vbo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::STATIC_DRAW);
+		vbo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::DYNAMIC_DRAW);
 		ibo.SendDataGPU(OpenGLUtils::Buffer::BufferUsage::STATIC_DRAW);
 	}
 }

@@ -7,7 +7,7 @@ namespace Game
 {
 
 	Paddle::Paddle(Renderer::Input::InputManager& inputManager, Physics::PhysicsManager& physicsManager, const vec3& position, float length, float speed)
-		: transform({ position, vec3{},vec3{length, 15.f, 1.f}})
+		: transform({ position, vec3{},vec3{length, 45.f, 1.f}})
 		, renderer(transform)
 		, collider(Renderer::Geometry::Rectangle(transform))
 		, movementData({ vec3{}, speed })
