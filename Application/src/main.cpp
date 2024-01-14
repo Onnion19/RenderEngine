@@ -112,7 +112,7 @@ int main()
 	}
 
 	Game::Ball ball(physicsManager, CreateBallProgram(camera), vec3{ 500.f,500.f, -1.f }, 30.f, 280.f, glm::normalize(vec3{ 0.1f, +0.9f,0.f })); 
-	Game::Paddle paddle(*context.GetInputManager(), physicsManager, vec3{ SCR_WIDTH / 2.f, 15.f, -1.f }, 150.f, 360.f);
+	Game::Paddle paddle(*context.GetInputManager(), physicsManager, vec3{ SCR_WIDTH / 2.f, 15.f, -1.f }, 340.f,560.f);
 
 	auto defaultProgram = CreateDefaultProgram(camera);
 	auto blockTexture = ImageLoader::LoadTexture("Assets/Textures/Block.png");

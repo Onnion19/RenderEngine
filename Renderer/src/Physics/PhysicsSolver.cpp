@@ -62,7 +62,29 @@ namespace Physics::CollisionSolver {
 			collision = true;
 		}
 
-		vec3 normal = (collision) ? vec3{ glm::normalize(circle.center - rectCenter), 0.f } : vec3{ 0.f };
+		vec3 normal{ 0.f };
+
+		if (collision)
+		{
+			if (circle.center.y > rect.topLeft.y)
+			{
+				normal = vec3(0.f, 1.f, 0.f);
+			}
+			else if (circle.center.y < rect.botRight.y)
+			{
+				normal = vec3(0.f, -1.f, 0.f);
+			}
+			else if (circle.center.x < rect.topLeft.x)
+			{
+				normal = vec3(-1.f, 0.f, 0.f);
+			}
+			else if (circle.center.x > rect.botRight.y){
+				normal = vec3(1.f, 0.f, 0.f);
+			}
+			else {
+				normal = vec3{ glm::normalize(circle.center - rectCenter),0.f };
+			}
+		}
 
 		return {collision, normal};
 	}
